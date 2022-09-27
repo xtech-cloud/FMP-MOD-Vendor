@@ -1,0 +1,71 @@
+
+syntax = "proto3";
+import "shared.proto";
+
+option csharp_namespace = "XTC.FMP.MOD.Vendor.LIB.Proto";
+package xtc.fmp.vendor;
+
+// Unity应用
+service Unity {
+    // 创建
+    rpc Create(UnityCreateRequest) returns (UuidResponse) {}
+    // 更新
+    rpc Update(UnityUpdateRequest) returns (UuidResponse) {}
+    // 读取
+    rpc Retrieve(UuidRequest) returns (UnityRetrieveResponse) {}
+    // 删除
+    rpc Delete(UuidRequest) returns (UuidResponse) {}
+    // 列举
+    rpc List(UnityListRequest) returns (UnityListResponse) {}
+    // 搜索
+    rpc Search(UnitySearchRequest) returns (UnityListResponse) {}
+}
+
+// 创建的请求
+message UnityCreateRequest {
+    string name = 1;  // 名称
+    string display = 2;  // 显示名称
+}
+
+// 更新的请求
+message UnityUpdateRequest {
+    string uuid = 1;  // 唯一识别码
+    string name = 2;  // 名称
+    string display = 3;  // 显示名称
+    string skin_splash_background = 10;  // 背景图片
+    string skin_splash_slogan = 11;  // 标语图片
+    int32 graphics_fps = 21; // 帧数
+    int32 graphics_quality = 22; // 画面质量
+    string graphics_pixelResolution = 23; // 像素分辨率, 格式为 宽度x高度，或者为auto
+    int32 graphics_referenceResolution_width = 24; // 参考分辨率宽度
+    int32 graphics_referenceResolution_height = 25; // 参考分辨率高度
+    float graphics_referenceResolution_match = 26; // 参考分辨率匹配权重，范围[0,1]
+    string application = 100; // 应用程序
+}
+
+// 读取的回复
+message UnityRetrieveResponse {
+    Status status = 1;  // 状态
+    UnityEntity unity = 2;  // Unity实体
+}
+
+// 列举的请求
+message UnityListRequest {
+    int64 offset = 1;  // 偏移值
+    int64 count = 2;  // 数量
+}
+
+// 列举的回复
+message UnityListResponse {
+    Status status = 1;  // 状态
+    int64 total = 2;  // 总数
+    repeated UnityEntity unityS = 3;  //  Unity实体列表
+}
+
+// 搜索的请求
+message UnitySearchRequest {
+    int64 offset = 1;  // 偏移值
+    int64 count = 2;  // 数量
+    string name = 3; // 名称
+    string display = 4; // 显示名称
+}

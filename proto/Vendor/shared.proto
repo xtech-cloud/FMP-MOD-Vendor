@@ -1,0 +1,66 @@
+
+syntax = "proto3";
+
+option csharp_namespace = "XTC.FMP.MOD.Vendor.LIB.Proto";
+package xtc.fmp.vendor;
+
+// 状态
+message Status
+{
+    int32 code = 1;  // 状态码
+    string message = 2;  // 状态信息
+}
+
+// 空白请求
+message BlankRequest
+{
+}
+
+// 空白回复
+message BlankResponse
+{
+    Status status = 1;  // 状态
+}
+
+// 作用域的请求
+message ScopeRequest
+{
+    string scope = 1;  // 作用域
+}
+
+// 作用域的回复
+message ScopeResponse
+{
+    Status status = 1;  // 状态
+    string scope = 2;  // 作用域
+}
+
+// UUID的请求
+message UuidRequest
+{
+    string uuid = 1;  // 唯一识别码
+}
+
+// UUID的回复
+message UuidResponse
+{
+    Status status = 1;  // 状态
+    string uuid = 2;  // 唯一识别码
+}
+
+// Unity实体
+message UnityEntity
+{
+    string uuid = 1;  // 唯一识别码
+    string name = 2;  // 名称
+    string display = 3;  // 显示名称
+    string skin_splash_background = 10;  // 背景图片
+    string skin_splash_slogan = 11;  // 标语图片
+    int32 graphics_fps = 21; // 帧数
+    int32 graphics_quality = 22; // 画面质量
+    string graphics_pixelResolution = 23; // 像素分辨率, 格式为 宽度x高度，或者为auto
+    int32 graphics_referenceResolution_width = 24; // 参考分辨率宽度
+    int32 graphics_referenceResolution_height = 25; // 参考分辨率高度
+    float graphics_referenceResolution_match = 26; // 参考分辨率匹配权重，范围[0,1]
+    string application = 100; // 应用程序
+}
