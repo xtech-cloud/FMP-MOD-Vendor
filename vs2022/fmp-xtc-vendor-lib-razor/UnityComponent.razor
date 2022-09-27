@@ -3,6 +3,7 @@
 @using System.ComponentModel
 @using AntDesign.TableModels
 @using Microsoft.AspNetCore.Components.Forms
+@using XTC.FMP.MOD.Vendor.LIB.MVCS
 
 <Card>
     <Form @ref="searchForm"
@@ -36,7 +37,10 @@
 
 <Card Style="margin-top:24px">
     <div style="display:flex; margin-bottom:24px;">
-        <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Plus" OnClick="@onCreateClick">创建</Button>
+        @if (permissionS_.ContainsKey(Permissions.UnityCreate))
+        {
+            <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Plus" OnClick="@onCreateClick">创建</Button>
+        }
     </div>
     <Table TItem="TableModel" DataSource="@tableModel" Total="@tableTotal" PageIndex="tablePageIndex" PageSize="tablePageSize" OnPageIndexChange="onPageIndexChanged">
         <PropertyColumn Title="名称" Property="c=>c.Entity.Name"></PropertyColumn>
@@ -51,21 +55,27 @@
         <PropertyColumn Title="应用程序" Property="c=>c.Entity.Application"></PropertyColumn>
         <ActionColumn Title="操作" Fixed="right" Width="150">
             <Space Size=@("middle")>
-                <SpaceItem>
-                    <Button Size="small" OnClick="()=>onUpdateClick(context.Entity?.Uuid)">修改</Button>
-                </SpaceItem>
+                @if (permissionS_.ContainsKey(Permissions.UnityUpdate))
+                {
+                    <SpaceItem>
+                        <Button Size="small" OnClick="()=>onUpdateClick(context.Entity?.Uuid)">修改</Button>
+                    </SpaceItem>
+                }
                 <SpaceItem>
                     <Button Size="small" Type="@ButtonType.Primary" OnClick="()=>onRunClick(context.Entity?.Uuid)">运行</Button>
                 </SpaceItem>
-                <SpaceItem>
-                    <Popconfirm Title="确定要删除这个包吗?"
+                @if (permissionS_.ContainsKey(Permissions.UnityDelete))
+                {
+                    <SpaceItem>
+                        <Popconfirm Title="确定要删除这个包吗?"
                                 OnConfirm="@(()=>onConfirmDelete(context.Entity?.Uuid))"
                                 OnCancel="onCancelDelete"
                                 OkText="确定"
                                 CancelText="取消">
-                        <Button Danger Size="small">删除</Button>
-                    </Popconfirm>
-                </SpaceItem>
+                            <Button Danger Size="small">删除</Button>
+                        </Popconfirm>
+                    </SpaceItem>
+                }
             </Space>
         </ActionColumn>
     </Table>
@@ -107,10 +117,10 @@
             <Input @bind-Value="@context.Entity.Display" />
         </FormItem>
         <FormItem Label="画面质量">
-            <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsQuality" Min="0" Max="5"/>
+            <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsQuality" Min="0" Max="5" />
         </FormItem>
         <FormItem Label="锁定帧数">
-            <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsFps" Min="30" Max="120" Step="30"/>
+            <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsFps" Min="30" Max="120" Step="30" />
         </FormItem>
         <FormItem Label="运行分辨率">
             <Input @bind-Value="@context.Entity.GraphicsPixelResolution" />
