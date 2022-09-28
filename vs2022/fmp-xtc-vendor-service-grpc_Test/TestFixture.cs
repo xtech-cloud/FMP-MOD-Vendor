@@ -16,6 +16,10 @@ public class TestFixture : TestFixtureBase
         base.Dispose();
     }
 
+    protected override void newBlazorService()
+    {
+        serviceBlazor_ = new BlazorService(new BlazorDAO(new DatabaseOptions()));
+    }
 
     protected override void newHealthyService()
     {

@@ -22,6 +22,11 @@ public partial class Program
     {
         var permissioS = new Dictionary<string,string>();
 
+        permissioS[Permissions.BlazorCreate] = "";
+        permissioS[Permissions.BlazorUpdate] = "";
+        permissioS[Permissions.BlazorRetrieve] = "";
+        permissioS[Permissions.BlazorDelete] = "";
+
         permissioS[Permissions.HealthyCreate] = "";
         permissioS[Permissions.HealthyUpdate] = "";
         permissioS[Permissions.HealthyRetrieve] = "";

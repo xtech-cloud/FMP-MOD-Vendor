@@ -9,6 +9,72 @@ using XTC.FMP.MOD.Vendor.LIB.Bridge;
 namespace XTC.FMP.MOD.Vendor.LIB.MVCS
 {
 
+    public class BlazorCreateRequestDTO : IDTO
+    {
+        public BlazorCreateRequestDTO(BlazorCreateRequest _value)
+        {
+            Value = _value;    
+        }
+        public readonly BlazorCreateRequest Value;
+    }
+
+
+
+    public class BlazorUpdateRequestDTO : IDTO
+    {
+        public BlazorUpdateRequestDTO(BlazorUpdateRequest _value)
+        {
+            Value = _value;    
+        }
+        public readonly BlazorUpdateRequest Value;
+    }
+
+
+
+    public class BlazorRetrieveResponseDTO : IDTO
+    {
+        public BlazorRetrieveResponseDTO(BlazorRetrieveResponse _value)
+        {
+            Value = _value;    
+        }
+        public readonly BlazorRetrieveResponse Value;
+    }
+
+
+
+    public class BlazorListRequestDTO : IDTO
+    {
+        public BlazorListRequestDTO(BlazorListRequest _value)
+        {
+            Value = _value;    
+        }
+        public readonly BlazorListRequest Value;
+    }
+
+
+
+    public class BlazorListResponseDTO : IDTO
+    {
+        public BlazorListResponseDTO(BlazorListResponse _value)
+        {
+            Value = _value;    
+        }
+        public readonly BlazorListResponse Value;
+    }
+
+
+
+    public class BlazorSearchRequestDTO : IDTO
+    {
+        public BlazorSearchRequestDTO(BlazorSearchRequest _value)
+        {
+            Value = _value;    
+        }
+        public readonly BlazorSearchRequest Value;
+    }
+
+
+
     public class HealthyEchoRequestDTO : IDTO
     {
         public HealthyEchoRequestDTO(HealthyEchoRequest _value)
@@ -115,6 +181,17 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             Value = _value;    
         }
         public readonly UnityEntity Value;
+    }
+
+
+
+    public class BlazorEntityDTO : IDTO
+    {
+        public BlazorEntityDTO(BlazorEntity _value)
+        {
+            Value = _value;    
+        }
+        public readonly BlazorEntity Value;
     }
 
 

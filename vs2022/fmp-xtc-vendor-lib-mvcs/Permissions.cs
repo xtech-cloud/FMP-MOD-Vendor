@@ -14,5 +14,9 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
         public const string UnityRetrieve = "/XTC/Vendor/Unity/Retrieve";
         public const string UnityDelete = "/XTC/Vendor/Unity/Delete";
 
+        public const string BlazorCreate = "/XTC/Vendor/Blazor/Create";
+        public const string BlazorUpdate = "/XTC/Vendor/Blazor/Update";
+        public const string BlazorRetrieve = "/XTC/Vendor/Blazor/Retrieve";
+        public const string BlazorDelete = "/XTC/Vendor/Blazor/Delete";
     }
 }

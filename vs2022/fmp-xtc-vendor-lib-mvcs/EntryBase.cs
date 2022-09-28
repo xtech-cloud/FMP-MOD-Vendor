@@ -69,6 +69,44 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
         /// </summary>
         protected Options? options_;
 
+        protected Dictionary<string, BlazorFacade?> facadeBlazorStaticMap_ = new Dictionary<string, BlazorFacade?>();
+        protected Dictionary<string, BlazorModel?> modelBlazorStaticMap_ = new Dictionary<string, BlazorModel?>();
+        protected Dictionary<string, BlazorView?> viewBlazorStaticMap_ = new Dictionary<string, BlazorView?>();
+        protected Dictionary<string, BlazorController?> controllerBlazorStaticMap_ = new Dictionary<string, BlazorController?>();
+        protected Dictionary<string, BlazorService?> serviceBlazorStaticMap_ = new Dictionary<string, BlazorService?>();
+
+        protected Dictionary<string, BlazorFacade?> facadeBlazorDynamicMap_ = new Dictionary<string, BlazorFacade?>();
+        protected Dictionary<string, BlazorModel?> modelBlazorDynamicMap_ = new Dictionary<string, BlazorModel?>();
+        protected Dictionary<string, BlazorView?> viewBlazorDynamicMap_ = new Dictionary<string, BlazorView?>();
+        protected Dictionary<string, BlazorController?> controllerBlazorDynamicMap_ = new Dictionary<string, BlazorController?>();
+        protected Dictionary<string, BlazorService?> serviceBlazorDynamicMap_ = new Dictionary<string, BlazorService?>();
+
+        /// <summary>
+        /// 获取Blazor的UI装饰层
+        /// </summary>
+        /// <param name="_gid">直系的组的ID</param>
+        /// <returns>UI装饰层</returns>
+        public BlazorFacade? getStaticBlazorFacade(string _gid)
+        {
+            BlazorFacade? facade = null;
+            if (!facadeBlazorStaticMap_.TryGetValue(BlazorFacade.NAME + "." + _gid, out facade))
+                return null;
+            return facade;
+        }
+
+        /// <summary>
+        /// 获取Blazor的UI装饰层
+        /// </summary>
+        /// <param name="_gid">直系的组的ID</param>
+        /// <returns>UI装饰层</returns>
+        public BlazorFacade? getDynamicBlazorFacade(string _gid)
+        {
+            BlazorFacade? facade = null;
+            if (!facadeBlazorDynamicMap_.TryGetValue(BlazorFacade.NAME + "." + _gid, out facade))
+                return null;
+            return facade;
+        }
+
         protected Dictionary<string, HealthyFacade?> facadeHealthyStaticMap_ = new Dictionary<string, HealthyFacade?>();
         protected Dictionary<string, HealthyModel?> modelHealthyStaticMap_ = new Dictionary<string, HealthyModel?>();
         protected Dictionary<string, HealthyView?> viewHealthyStaticMap_ = new Dictionary<string, HealthyView?>();
@@ -181,6 +219,31 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             }
 
             // 注册数据层
+            var modelBlazor = new BlazorModel(BlazorModel.NAME + "." + _gid, _gid);
+            modelBlazorStaticMap_[BlazorModel.NAME + "." + _gid] = modelBlazor;
+            framework_.getStaticPipe().RegisterModel(modelBlazor);
+            // 注册视图层
+            var viewBlazor = new BlazorView(BlazorView.NAME + "." + _gid, _gid);
+            viewBlazorStaticMap_[BlazorView.NAME + "." + _gid] = viewBlazor;
+            framework_.getStaticPipe().RegisterView(viewBlazor);
+            // 注册控制层
+            var controllerBlazor = new BlazorController(BlazorController.NAME + "." + _gid, _gid);
+            controllerBlazorStaticMap_[BlazorController.NAME + "." + _gid] = controllerBlazor;
+            framework_.getStaticPipe().RegisterController(controllerBlazor);
+            // 注册服务层
+            var serviceBlazor = new BlazorService(BlazorService.NAME + "." + _gid, _gid);
+            serviceBlazorStaticMap_[BlazorService.NAME + "." + _gid] = serviceBlazor;
+            framework_.getStaticPipe().RegisterService(serviceBlazor);
+            serviceBlazor.InjectGrpcChannel(options_?.getChannel());
+            // 注册UI装饰层
+            var facadeBlazor = new BlazorFacade(BlazorFacade.NAME + "." + _gid, _gid);
+            facadeBlazorStaticMap_[BlazorFacade.NAME + "." + _gid] = facadeBlazor;
+            var bridgeBlazor = new BlazorViewBridge();
+            bridgeBlazor.service = serviceBlazor;
+            facadeBlazor.setViewBridge(bridgeBlazor);
+            framework_.getStaticPipe().RegisterFacade(facadeBlazor);
+
+            // 注册数据层
             var modelHealthy = new HealthyModel(HealthyModel.NAME + "." + _gid, _gid);
             modelHealthyStaticMap_[HealthyModel.NAME + "." + _gid] = modelHealthy;
             framework_.getStaticPipe().RegisterModel(modelHealthy);
@@ -249,6 +312,31 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             }
 
             // 注册数据层
+            var modelBlazor = new BlazorModel(BlazorModel.NAME + "." + _gid, _gid);
+            modelBlazorDynamicMap_[BlazorModel.NAME + "." + _gid] = modelBlazor;
+            framework_.getDynamicPipe().PushModel(modelBlazor);
+            // 注册视图层
+            var viewBlazor = new BlazorView(BlazorView.NAME + "." + _gid, _gid);
+            viewBlazorDynamicMap_[BlazorView.NAME + "." + _gid] = viewBlazor;
+            framework_.getDynamicPipe().PushView(viewBlazor);
+            // 注册控制层
+            var controllerBlazor = new BlazorController(BlazorController.NAME + "." + _gid, _gid);
+            controllerBlazorDynamicMap_[BlazorController.NAME + "." + _gid] = controllerBlazor;
+            framework_.getDynamicPipe().PushController(controllerBlazor);
+            // 注册服务层
+            var serviceBlazor = new BlazorService(BlazorService.NAME + "." + _gid, _gid);
+            serviceBlazorDynamicMap_[BlazorService.NAME + "." + _gid] = serviceBlazor;
+            framework_.getDynamicPipe().PushService(serviceBlazor);
+            serviceBlazor.InjectGrpcChannel(options_?.getChannel());
+            // 注册UI装饰层
+            var facadeBlazor = new BlazorFacade(BlazorFacade.NAME + "." + _gid, _gid);
+            facadeBlazorDynamicMap_[BlazorFacade.NAME + "." + _gid] = facadeBlazor;
+            var bridgeBlazor = new BlazorViewBridge();
+            bridgeBlazor.service = serviceBlazor;
+            facadeBlazor.setViewBridge(bridgeBlazor);
+            framework_.getDynamicPipe().PushFacade(facadeBlazor);
+
+            // 注册数据层
             var modelHealthy = new HealthyModel(HealthyModel.NAME + "." + _gid, _gid);
             modelHealthyDynamicMap_[HealthyModel.NAME + "." + _gid] = modelHealthy;
             framework_.getDynamicPipe().PushModel(modelHealthy);
@@ -314,6 +402,42 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             if (null == framework_)
             {
                 return Error.NewNullErr("framework is null");
+            }
+
+            // 注销服务层
+            BlazorService? serviceBlazor;
+            if(serviceBlazorStaticMap_.TryGetValue(BlazorService.NAME + "." + _gid, out serviceBlazor))
+            {
+                framework_.getStaticPipe().CancelService(serviceBlazor);
+                serviceBlazorStaticMap_.Remove(BlazorService.NAME + "." +_gid);
+            }
+            // 注销控制层
+            BlazorController? controllerBlazor;
+            if(controllerBlazorStaticMap_.TryGetValue(BlazorController.NAME + "." + _gid, out controllerBlazor))
+            {
+                framework_.getStaticPipe().CancelController(controllerBlazor);
+                controllerBlazorStaticMap_.Remove(BlazorController.NAME + "." +_gid);
+            }
+            // 注销视图层
+            BlazorView? viewBlazor;
+            if(viewBlazorStaticMap_.TryGetValue(BlazorView.NAME + "." + _gid, out viewBlazor))
+            {
+                framework_.getStaticPipe().CancelView(viewBlazor);
+                viewBlazorStaticMap_.Remove(BlazorView.NAME + "." +_gid);
+            }
+            // 注销UI装饰层
+            BlazorFacade? facadeBlazor;
+            if(facadeBlazorStaticMap_.TryGetValue(BlazorFacade.NAME + "." + _gid, out facadeBlazor))
+            {
+                framework_.getStaticPipe().CancelFacade(facadeBlazor);
+                facadeBlazorStaticMap_.Remove(BlazorFacade.NAME + "." +_gid);
+            }
+            // 注销数据层
+            BlazorModel? modelBlazor;
+            if(modelBlazorStaticMap_.TryGetValue(BlazorModel.NAME + "." + _gid, out modelBlazor))
+            {
+                framework_.getStaticPipe().CancelModel(modelBlazor);
+                modelBlazorStaticMap_.Remove(BlazorModel.NAME + "." +_gid);
             }
 
             // 注销服务层
@@ -404,6 +528,42 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             if (null == framework_)
             {
                 return Error.NewNullErr("framework is null");
+            }
+
+            // 注销服务层
+            BlazorService? serviceBlazor;
+            if(serviceBlazorDynamicMap_.TryGetValue(BlazorService.NAME + "." + _gid, out serviceBlazor))
+            {
+                framework_.getDynamicPipe().PopService(serviceBlazor);
+                serviceBlazorDynamicMap_.Remove(BlazorService.NAME + "." +_gid);
+            }
+            // 注销控制层
+            BlazorController? controllerBlazor;
+            if(controllerBlazorDynamicMap_.TryGetValue(BlazorController.NAME + "." + _gid, out controllerBlazor))
+            {
+                framework_.getDynamicPipe().PopController(controllerBlazor);
+                controllerBlazorDynamicMap_.Remove(BlazorController.NAME + "." +_gid);
+            }
+            // 注销视图层
+            BlazorView? viewBlazor;
+            if(viewBlazorDynamicMap_.TryGetValue(BlazorView.NAME + "." + _gid, out viewBlazor))
+            {
+                framework_.getDynamicPipe().PopView(viewBlazor);
+                viewBlazorDynamicMap_.Remove(BlazorView.NAME + "." +_gid);
+            }
+            // 注销UI装饰层
+            BlazorFacade? facadeBlazor;
+            if(facadeBlazorDynamicMap_.TryGetValue(BlazorFacade.NAME + "." + _gid, out facadeBlazor))
+            {
+                framework_.getDynamicPipe().PopFacade(facadeBlazor);
+                facadeBlazorDynamicMap_.Remove(BlazorFacade.NAME + "." +_gid);
+            }
+            // 注销数据层
+            BlazorModel? modelBlazor;
+            if(modelBlazorDynamicMap_.TryGetValue(BlazorModel.NAME + "." + _gid, out modelBlazor))
+            {
+                framework_.getDynamicPipe().PopModel(modelBlazor);
+                modelBlazorDynamicMap_.Remove(BlazorModel.NAME + "." +_gid);
             }
 
             // 注销服务层

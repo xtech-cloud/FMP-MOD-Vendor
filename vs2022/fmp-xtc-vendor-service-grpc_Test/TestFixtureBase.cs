@@ -24,6 +24,25 @@ public abstract class TestFixtureBase : IDisposable
     }
 
 
+    protected BlazorService? serviceBlazor_ { get; set; }
+
+    public BlazorService getServiceBlazor()
+    {
+        if(null == serviceBlazor_)
+        {
+            newBlazorService();
+        }
+        return serviceBlazor_!;
+    }
+
+    /// <summary>
+    /// 实例化服务
+    /// </summary>
+    /// <example>
+    /// serviceBlazor_ = new BlazorService(new BlazorDAO(new DatabaseOptions()));
+    /// </example>
+    protected abstract void newBlazorService();
+
     protected HealthyService? serviceHealthy_ { get; set; }
 
     public HealthyService getServiceHealthy()

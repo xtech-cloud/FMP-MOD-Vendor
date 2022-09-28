@@ -44,5 +44,19 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             entity.Application = _entity.Application;
             return entity;
         }
+
+        public static LIB.Proto.BlazorEntity DeepCloneProtoBlazorEntity(LIB.Proto.BlazorEntity _blazor)
+        {
+            var entity = new LIB.Proto.BlazorEntity();
+            entity.Uuid = _blazor.Uuid;
+            entity.Name = _blazor.Name;
+            entity.Display = _blazor.Display;
+            entity.Logo = _blazor.Logo;
+            entity.SkinConfig = _blazor.SkinConfig;
+            entity.MenuTitle = _blazor.MenuTitle;
+            entity.MenuConfig = _blazor.MenuConfig;
+            entity.ModulesConfig = _blazor.ModulesConfig;
+            return entity;
+        }
     }
 }

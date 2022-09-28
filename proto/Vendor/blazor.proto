@@ -1,0 +1,67 @@
+
+syntax = "proto3";
+import "shared.proto";
+
+option csharp_namespace = "XTC.FMP.MOD.Vendor.LIB.Proto";
+package xtc.fmp.vendor;
+
+// Blazor应用
+service Blazor {
+    // 创建
+    rpc Create(BlazorCreateRequest) returns (UuidResponse) {}
+    // 更新
+    rpc Update(BlazorUpdateRequest) returns (UuidResponse) {}
+    // 读取
+    rpc Retrieve(UuidRequest) returns (BlazorRetrieveResponse) {}
+    // 删除
+    rpc Delete(UuidRequest) returns (UuidResponse) {}
+    // 列举
+    rpc List(BlazorListRequest) returns (BlazorListResponse) {}
+    // 搜索
+    rpc Search(BlazorSearchRequest) returns (BlazorListResponse) {}
+}
+
+// 创建的请求
+message BlazorCreateRequest {
+    string name = 1;  // 名称
+    string display = 2;  // 显示名称
+}
+
+// 更新的请求
+message BlazorUpdateRequest {
+    string uuid = 1;  // 唯一识别码
+    string name = 2;  // 名称
+    string display = 3;  // 显示名称
+    string logo = 10;  // logo图片
+    string skin_config = 11;  // base64编码的皮肤配置
+    string menu_title = 21;  // 菜单标题名
+    string menu_config = 22;  // base64编码的菜单配置
+    string modules_config = 31;  // base64编码的模块配置
+}
+
+// 读取的回复
+message BlazorRetrieveResponse {
+    Status status = 1;  // 状态
+    BlazorEntity blazor = 2;  // Blazor实体
+}
+
+// 列举的请求
+message BlazorListRequest {
+    int64 offset = 1;  // 偏移值
+    int64 count = 2;  // 数量
+}
+
+// 列举的回复
+message BlazorListResponse {
+    Status status = 1;  // 状态
+    int64 total = 2;  // 总数
+    repeated BlazorEntity blazorS = 3;  //  Blazor实体列表
+}
+
+// 搜索的请求
+message BlazorSearchRequest {
+    int64 offset = 1;  // 偏移值
+    int64 count = 2;  // 数量
+    string name = 3; // 名称
+    string display = 4; // 显示名称
+}

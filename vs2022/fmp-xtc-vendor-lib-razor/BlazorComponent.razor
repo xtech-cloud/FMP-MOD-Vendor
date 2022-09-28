@@ -1,0 +1,151 @@
+@page "/xtc/vendor/blazor"
+
+@using System.ComponentModel
+@using AntDesign.TableModels
+@using Microsoft.AspNetCore.Components.Forms
+@using XTC.FMP.MOD.Vendor.LIB.MVCS
+
+<Card>
+    <Form @ref="searchForm"
+          Loading="searchLoading"
+          Model="searchFormData"
+          OnFinish="@onSearchSubmit">
+        <Row Gutter="24">
+            @for (var i = 0; i < (searchExpand ? searchFormData.Count : (searchFormData.Count < 3 ? searchFormData.Count : 3)); i++)
+            {
+                var index = i;
+                <GridCol Span="8" @key="index">
+                    <FormItem Label="@(context[index].Text)">
+                        <Input @bind-Value="@(context[index].Value)" Placeholder="请输入" />
+                    </FormItem>
+                </GridCol>
+            }
+        </Row>
+        <Row>
+            <GridCol Span="24" Style="text-align:right;">
+                <Button Type="primary" HtmlType="submit">查询</Button>
+                <Button Style="margin: 0 8px;" OnClick="@onSearchResetClick">重置</Button>
+                <!--
+                <a style="font-size:12px" onclick="()=>{}">
+                    <Icon Type="@(searchExpand?"up":"down")"></Icon>  Collapse
+                </a>
+                -->
+            </GridCol>
+        </Row>
+    </Form>
+</Card>
+
+<Card Style="margin-top:24px">
+    <div style="display:flex; margin-bottom:24px;">
+        @if (permissionS_.ContainsKey(Permissions.BlazorCreate))
+        {
+            <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Plus" OnClick="@onCreateClick">创建</Button>
+        }
+    </div>
+    <Table TItem="TableModel" DataSource="@tableModel" Total="@tableTotal" PageIndex="tablePageIndex" PageSize="tablePageSize" OnPageIndexChange="onPageIndexChanged">
+        <PropertyColumn Title="名称" Property="c=>c.Entity.Name"></PropertyColumn>
+        <PropertyColumn Title="备注" Property="c=>c.Entity.Display"></PropertyColumn>
+        <ActionColumn Title="操作" Fixed="right" Width="150">
+            <Space Size=@("middle")>
+                @if (permissionS_.ContainsKey(Permissions.BlazorUpdate))
+                {
+                    <SpaceItem>
+                        <Button Size="small" OnClick="()=>onUpdateClick(context.Entity?.Uuid)">修改</Button>
+                    </SpaceItem>
+                }
+                <SpaceItem>
+                    <Button Size="small" Type="@ButtonType.Primary" OnClick="()=>onRunClick(context.Entity?.Uuid)">运行</Button>
+                </SpaceItem>
+                @if (permissionS_.ContainsKey(Permissions.BlazorDelete))
+                {
+                    <SpaceItem>
+                        <Popconfirm Title="确定要删除这个包吗?"
+                                OnConfirm="@(()=>onConfirmDelete(context.Entity?.Uuid))"
+                                OnCancel="onCancelDelete"
+                                OkText="确定"
+                                CancelText="取消">
+                            <Button Danger Size="small">删除</Button>
+                        </Popconfirm>
+                    </SpaceItem>
+                }
+            </Space>
+        </ActionColumn>
+    </Table>
+</Card>
+
+<Modal Title="创建"
+       Visible="@visibleCreateModal"
+       ConfirmLoading="@createLoading"
+       OnOk="@onCreateModalOk"
+       OnCancel="@onCreateModalCancel">
+    <Form Model="@createModel"
+          LabelColSpan="8"
+          WrapperColSpan="16"
+          OnFinish="onCreateSubmit"
+          @ref="@createForm">
+        <FormItem Label="名称">
+            <Input @bind-Value="@context.Name" />
+        </FormItem>
+        <FormItem Label="备注">
+            <Input @bind-Value="@context.Display" />
+        </FormItem>
+    </Form>
+</Modal>
+
+<Modal Title="更新"
+       Visible="@visibleUpdateModal"
+       ConfirmLoading="@updateLoading"
+       OnOk="@onUpdateModalOk"
+       OnCancel="@onUpdateModalCancel">
+    <Form Model="@updateModel"
+          LabelColSpan="8"
+          WrapperColSpan="16"
+          OnFinish="onUpdateSubmit"
+          @ref="@updateForm">
+        <FormItem Label="名称" Required>
+            <Input @bind-Value="@context.Entity.Name" />
+        </FormItem>
+        <FormItem Label="备注">
+            <Input @bind-Value="@context.Entity.Display" />
+        </FormItem>
+        <FormItem Label="标志图">
+            <Input @bind-Value="@context.Entity.Logo" />
+        </FormItem>
+        <FormItem Label="菜单标题">
+            <Input @bind-Value="@context.Entity.MenuTitle" />
+        </FormItem>
+        <FormItem Label="菜单配置">
+            <TextArea @bind-Value="@context.MenuConfig" Rows="8"/>
+        </FormItem>
+        <FormItem Label="模块配置">
+            <TextArea @bind-Value="@context.ModulesConfig" Rows="8"/>
+        </FormItem>
+        <FormItem Label="皮肤配置">
+            <TextArea @bind-Value="@context.SkinConfig" Rows="8"/>
+        </FormItem>
+    </Form>
+</Modal>
+
+<style>
+    .card-search-col {
+        margin-right: 64px;
+        margin-bottom: 24px;
+    }
+</style>
+
+@code {
+    class Quality
+    {
+        public int Level { get; set; }
+        public string Label { get; set; }
+    }
+
+    List<Quality> qualityS = new List<Quality>{
+        new Quality{Level=0, Label="非常低"},
+        new Quality{Level=1, Label="低"},
+        new Quality{Level=2, Label="中"},
+        new Quality{Level=3, Label="高"},
+        new Quality{Level=4, Label="非常高"},
+        new Quality{Level=5, Label="极高"},
+    };
+}
