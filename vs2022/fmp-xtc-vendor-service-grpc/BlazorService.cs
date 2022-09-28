@@ -1,4 +1,5 @@
 using Grpc.Core;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 using XTC.FMP.MOD.Vendor.LIB.Proto;
 
@@ -6,6 +7,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
 {
     public class BlazorService : BlazorServiceBase
     {
+        private readonly MinIOClient minioClient_;
         // 解开以下代码的注释，可支持数据库操作
         private readonly BlazorDAO blazorDAO_;
 
@@ -15,10 +17,12 @@ namespace XTC.FMP.MOD.Vendor.App.Service
         /// <remarks>
         /// 支持多个参数，均为自动注入，注入点位于MyProgram.PreBuild
         /// </remarks>
-        /// <param name="_yourDAO">自动注入的数据操作对象</param>
-        public BlazorService(BlazorDAO _blazorDAO)
+        /// <param name="_blazorDAO">自动注入的数据操作对象</param>
+        /// <param name="_minioClient">自动注入的MinIO客户端</param>
+        public BlazorService(BlazorDAO _blazorDAO, MinIOClient _minioClient)
         {
             blazorDAO_ = _blazorDAO;
+            minioClient_ = _minioClient;
         }
 
         protected override async Task<UuidResponse> safeCreate(BlazorCreateRequest _request, ServerCallContext _context)
@@ -118,6 +122,12 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             blazor.ModulesConfig = _request.ModulesConfig;
 
             await blazorDAO_.UpdateAsync(_request.Uuid, blazor);
+
+            // 保存到存储中
+            string filepath = string.Format("blazor/{0}.json", blazor.Uuid.ToString());
+            byte[] bytesBlazor = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(blazor));
+            await minioClient_.PutObject(filepath, new MemoryStream(bytesBlazor));
+
             return new UuidResponse
             {
                 Status = new LIB.Proto.Status(),

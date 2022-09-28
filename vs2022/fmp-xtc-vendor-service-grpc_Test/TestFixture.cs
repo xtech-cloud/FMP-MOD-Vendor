@@ -18,7 +18,7 @@ public class TestFixture : TestFixtureBase
 
     protected override void newBlazorService()
     {
-        serviceBlazor_ = new BlazorService(new BlazorDAO(new DatabaseOptions()));
+        serviceBlazor_ = new BlazorService(new BlazorDAO(new DatabaseOptions()), new MinIOClient(new MinIOOptions()));
     }
 
     protected override void newHealthyService()
