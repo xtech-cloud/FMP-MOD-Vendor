@@ -28,6 +28,6 @@ public class TestFixture : TestFixtureBase
 
     protected override void newUnityService()
     {
-        serviceUnity_ = new UnityService(new UnityDAO(new DatabaseOptions()));
+        serviceUnity_ = new UnityService(new UnityDAO(new DatabaseOptions()), new MinIOClient(new MinIOOptions()));
     }
 }

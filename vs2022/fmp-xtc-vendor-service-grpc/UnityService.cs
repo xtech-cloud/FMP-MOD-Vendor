@@ -1,5 +1,6 @@
 
 using Grpc.Core;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 using XTC.FMP.MOD.Vendor.LIB.Proto;
 
@@ -7,6 +8,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
 {
     public class UnityService : UnityServiceBase
     {
+        private readonly MinIOClient minioClient_;
         // 解开以下代码的注释，可支持数据库操作
         private readonly UnityDAO unityDAO_;
 
@@ -16,10 +18,12 @@ namespace XTC.FMP.MOD.Vendor.App.Service
         /// <remarks>
         /// 支持多个参数，均为自动注入，注入点位于MyProgram.PreBuild
         /// </remarks>
-        /// <param name="_yourDAO">自动注入的数据操作对象</param>
-        public UnityService(UnityDAO _unityDAO)
+        /// <param name="_unityDAO">自动注入的数据操作对象</param>
+        /// <param name="_minioClient">自动注入的MinIO客户端</param>
+        public UnityService(UnityDAO _unityDAO, MinIOClient _minioClient)
         {
             unityDAO_ = _unityDAO;
+            minioClient_ = _minioClient;
         }
 
         protected override async Task<UuidResponse> safeCreate(UnityCreateRequest _request, ServerCallContext _context)
@@ -123,6 +127,12 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             unity.Application = _request.Application;
 
             await unityDAO_.UpdateAsync(_request.Uuid, unity);
+
+            // 保存到存储中
+            string filepath = string.Format("unity/{0}.json", unity.Uuid.ToString());
+            byte[] bytesBlazor = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(unity));
+            await minioClient_.PutObject(filepath, new MemoryStream(bytesBlazor));
+
             return new UuidResponse
             {
                 Status = new LIB.Proto.Status(),
