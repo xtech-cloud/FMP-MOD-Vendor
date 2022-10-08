@@ -125,6 +125,9 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             unity.GraphicsReferenceResolutionHeight = _request.GraphicsReferenceResolutionHeight;
             unity.GraphicsReferenceResolutionMatch = _request.GraphicsReferenceResolutionMatch;
             unity.Application = _request.Application;
+            unity.DependencyConfig = _request.DependencyConfig;
+            unity.BootloaderConfig = _request.BootloaderConfig;
+            unity.UpgradeConfig = _request.UpgradeConfig;
 
             await unityDAO_.UpdateAsync(_request.Uuid, unity);
 

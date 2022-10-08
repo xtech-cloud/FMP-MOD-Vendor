@@ -30,6 +30,9 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             unity.GraphicsReferenceResolutionHeight = 1080;
             unity.GraphicsReferenceResolutionMatch = 1;
             unity.Application = "";
+            unity.DependencyConfig = "";
+            unity.BootloaderConfig = "";
+            unity.UpgradeConfig = "";
             return unity;
         }
 
@@ -48,6 +51,9 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             unity.GraphicsReferenceResolutionHeight = _unity.GraphicsReferenceResolutionHeight;
             unity.GraphicsReferenceResolutionMatch = _unity.GraphicsReferenceResolutionMatch;
             unity.Application = _unity.Application;
+            unity.DependencyConfig = _unity.DependencyConfig;
+            unity.BootloaderConfig = _unity.BootloaderConfig;
+            unity.UpgradeConfig = _unity.UpgradeConfig;
             return unity;
         }
 

@@ -46,13 +46,38 @@
         <PropertyColumn Title="名称" Property="c=>c.Entity.Name"></PropertyColumn>
         <PropertyColumn Title="备注" Property="c=>c.Entity.Display"></PropertyColumn>
         <PropertyColumn Title="锁定帧数" Property="c=>c.Entity.GraphicsFps"></PropertyColumn>
-        <PropertyColumn Title="画面质量" Property="c=>c._GraphicsQuality"></PropertyColumn>
+        <PropertyColumn Title="画面质量" Property="c=>qualityS[c.Entity.GraphicsQuality].Label"></PropertyColumn>
         <PropertyColumn Title="运行分辨率" Property="c=>c.Entity.GraphicsPixelResolution"></PropertyColumn>
         <PropertyColumn Title="UI设计分辨率" Property="c=>c._GraphicsReferenceResolution"></PropertyColumn>
         <PropertyColumn Title="适配权重" Property="c=>c.Entity.GraphicsReferenceResolutionMatch"></PropertyColumn>
-        <PropertyColumn Title="过场界面背景图" Property="c=>c.Entity.SkinSplashBackground"></PropertyColumn>
-        <PropertyColumn Title="过场界面标语图" Property="c=>c.Entity.SkinSplashSlogan"></PropertyColumn>
-        <PropertyColumn Title="应用程序" Property="c=>c.Entity.Application"></PropertyColumn>
+        <Column Title="皮肤" TData="string">
+            @if (!string.IsNullOrEmpty(context.Entity.SkinSplashBackground))
+            {
+                <Tag Color="geekblue">过场界面背景图</Tag>
+            }
+            @if (!string.IsNullOrEmpty(context.Entity.SkinSplashSlogan))
+            {
+                <Tag Color="geekblue">过场界面标语图</Tag>
+            }
+        </Column>
+        <PropertyColumn Title="模块" Property="c=>c._dependencyConfig.schema.body.references">
+            @foreach (var reference in context._dependencyConfig.schema.body.references)
+            {
+                <Tag Color="geekblue">@reference.org@("_")@reference.module@("@")@reference.version</Tag>
+            }
+        </PropertyColumn>
+        <PropertyColumn Title="插件" Property="c=>c._dependencyConfig.schema.body.plugins">
+            @foreach (var plugin in context._dependencyConfig.schema.body.plugins)
+            {
+                <Tag Color="geekblue">@plugin.name@("@")@plugin.version</Tag>
+            }
+        </PropertyColumn>
+        <Column Title="应用程序" TData="string">
+            @if (!string.IsNullOrEmpty(context.Entity.Application))
+            {
+                <Icon Type="check-circle" Theme="twotone" TwotoneColor="#52c41a" Height="2em" Width="2em" />
+            }
+        </Column>
         <ActionColumn Title="操作" Fixed="right" Width="150">
             <Space Size=@("middle")>
                 @if (permissionS_.ContainsKey(Permissions.UnityUpdate))
@@ -104,7 +129,8 @@
        Visible="@visibleUpdateModal"
        ConfirmLoading="@updateLoading"
        OnOk="@onUpdateModalOk"
-       OnCancel="@onUpdateModalCancel">
+       OnCancel="@onUpdateModalCancel"
+       Width="640">
     <Form Model="@updateModel"
           LabelColSpan="8"
           WrapperColSpan="16"
@@ -116,34 +142,84 @@
         <FormItem Label="备注">
             <Input @bind-Value="@context.Entity.Display" />
         </FormItem>
-        <FormItem Label="画面质量">
-            <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsQuality" Min="0" Max="5" />
-        </FormItem>
-        <FormItem Label="锁定帧数">
-            <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsFps" Min="30" Max="120" Step="30" />
-        </FormItem>
-        <FormItem Label="运行分辨率">
-            <Input @bind-Value="@context.Entity.GraphicsPixelResolution" />
-        </FormItem>
-        <FormItem Label="UI设计分辨率宽度">
-            <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionWidth" Min="0" />
-        </FormItem>
-        <FormItem Label="UI设计分辨率高度">
-            <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionHeight" Min="0" />
-        </FormItem>
-        <FormItem Label="UI设计分辨率适配权重">
-            <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionMatch" Max="1.0f" Min="0.0f" Step="0.1f" />
-        </FormItem>
-
-        <FormItem Label="过场界面背景图">
-            <Input @bind-Value="@context.Entity.SkinSplashBackground" />
-        </FormItem>
-        <FormItem Label="过场界面标语图">
-            <Input @bind-Value="@context.Entity.SkinSplashSlogan" />
-        </FormItem>
         <FormItem Label="应用程序">
             <Input @bind-Value="@context.Entity.Application" />
         </FormItem>
+        <Tabs>
+            <TabPane Tab="图像设置" Key="1">
+                <FormItem Label="画面质量">
+                    <Select @bind-Value="@context.Entity.GraphicsQuality"
+                            TItem="Quality"
+                            TItemValue="int"
+                            DataSource="@qualityS"
+                            ValueName="@nameof(Quality.Level)"
+                            LabelName="@nameof(Quality.Label)"
+                            Style="width:120px">
+                    </Select>
+                </FormItem>
+                <FormItem Label="锁定帧数">
+                    <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsFps" Min="30" Max="120" Step="30" />
+                </FormItem>
+                <FormItem Label="运行分辨率">
+                    <Input @bind-Value="@context.Entity.GraphicsPixelResolution" />
+                </FormItem>
+                <FormItem Label="UI设计分辨率宽度">
+                    <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionWidth" Min="0" />
+                </FormItem>
+                <FormItem Label="UI设计分辨率高度">
+                    <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionHeight" Min="0" />
+                </FormItem>
+                <FormItem Label="UI设计分辨率适配权重">
+                    <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionMatch" Max="1.0f" Min="0.0f" Step="0.1f" />
+                </FormItem>
+            </TabPane>
+            <TabPane Tab="皮肤设置" Key="2">
+                <FormItem Label="过场界面背景图">
+                    <Input @bind-Value="@context.Entity.SkinSplashBackground" AllowClear="true" />
+                </FormItem>
+                <FormItem Label="过场界面标语图">
+                    <Input @bind-Value="@context.Entity.SkinSplashSlogan" AllowClear="true" />
+                </FormItem>
+            </TabPane>
+            <TabPane Tab="依赖设置" Key="3">
+                <FormItem Label="环境">
+                    <Select @bind-Value="@context._dependencyConfig.schema.body.options.environment"
+                            TItem="Environment"
+                            TItemValue="string"
+                            DataSource="@environmentS"
+                            ValueName="@nameof(Environment.Value)"
+                            LabelName="@nameof(Environment.Label)"
+                            Style="width:120px">
+                    </Select>
+                </FormItem>
+                <FormItem Label="仓库地址">
+                    <Input @bind-Value="@context._dependencyConfig.schema.body.options.repository" />
+                </FormItem>
+                <FormItem Label="模块">
+                    <TextArea @bind-Value="@context._dependencyReferencesInput" MinRows="1" />
+                </FormItem>
+                <FormItem Label="插件">
+                    <TextArea @bind-Value="@context._dependencyPluginsInput" MinRows="1" />
+                </FormItem>
+            </TabPane>
+            <TabPane Tab="引导设置" Key="4">
+                <FormItem Label="步骤">
+                    <TextArea @bind-Value="@context._bootloaderStepsInput" MinRows="1" />
+                </FormItem>
+            </TabPane>
+            <TabPane Tab="升级设置" Key="5">
+                <FormItem Label="策略">
+                    <Select @bind-Value="@context._upgradeConfig.schema.body.update.strategy"
+                            TItem="UpgradeStrategy"
+                            TItemValue="string"
+                            DataSource="@upgradeStrategyS"
+                            ValueName="@nameof(UpgradeStrategy.Value)"
+                            LabelName="@nameof(UpgradeStrategy.Label)"
+                            Style="width:120px">
+                    </Select>
+                </FormItem>
+            </TabPane>
+        </Tabs>
     </Form>
 </Modal>
 
@@ -168,6 +244,27 @@
         new Quality{Level=3, Label="高"},
         new Quality{Level=4, Label="非常高"},
         new Quality{Level=5, Label="极高"},
+    };
+
+    class Environment
+    {
+        public string Value { get; set; } = "";
+        public string Label { get; set; } = "";
+    }
+    List<Environment> environmentS = new List<Environment>{
+        new Environment{Value="product", Label="生产"},
+        new Environment{Value="develop", Label="开发"},
+    };
+
+    class UpgradeStrategy
+    {
+        public string Value { get; set; } = "";
+        public string Label { get; set; } = "";
+    }
+    List<UpgradeStrategy> upgradeStrategyS = new List<UpgradeStrategy>{
+        new UpgradeStrategy{Value="skip", Label="跳过"},
+        new UpgradeStrategy{Value="auto", Label="自动"},
+        new UpgradeStrategy{Value="manaul", Label="手动"},
     };
 }
 

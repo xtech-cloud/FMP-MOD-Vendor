@@ -9,6 +9,7 @@ using System.ComponentModel;
 using AntDesign;
 using AntDesign.TableModels;
 using Microsoft.JSInterop;
+using System.Text;
 
 namespace XTC.FMP.MOD.Vendor.LIB.Razor
 {
@@ -91,6 +92,31 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
                     {
                         Entity = unity,
                     };
+
+                    try
+                    {
+                        item._dependencyConfig = Utilities.FromBase64XML<UnityModel.DependencyConfig>(item.Entity.DependencyConfig) ?? new UnityModel.DependencyConfig();
+                    }
+                    catch (System.Exception ex)
+                    {
+                        razor_.logger_?.Exception(ex);
+                    }
+                    try
+                    {
+                        item._bootloaderConfig = Utilities.FromBase64XML<UnityModel.BootloaderConfig>(item.Entity.BootloaderConfig) ?? new UnityModel.BootloaderConfig();
+                    }
+                    catch (System.Exception ex)
+                    {
+                        razor_.logger_?.Exception(ex);
+                    }
+                    try
+                    {
+                        item._upgradeConfig = Utilities.FromBase64XML<UnityModel.UpgradeConfig>(item.Entity.UpgradeConfig) ?? new UnityModel.UpgradeConfig();
+                    }
+                    catch (System.Exception ex)
+                    {
+                        razor_.logger_?.Exception(ex);
+                    }
                     razor_.tableModel.Add(item);
                 }
                 razor_.selectedModel = null;
@@ -225,6 +251,13 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
         private class UpdateModel
         {
             public UnityEntity Entity { get; set; } = new UnityEntity();
+            public UnityModel.DependencyConfig _dependencyConfig { get; set; } = new UnityModel.DependencyConfig();
+            public UnityModel.BootloaderConfig _bootloaderConfig { get; set; } = new UnityModel.BootloaderConfig();
+            public UnityModel.UpgradeConfig _upgradeConfig { get; set; } = new UnityModel.UpgradeConfig();
+
+            public string _dependencyReferencesInput { get; set; } = "";
+            public string _dependencyPluginsInput { get; set; } = "";
+            public string _bootloaderStepsInput { get; set; } = "";
         }
 
         private bool visibleUpdateModal = false;
@@ -248,6 +281,60 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
 
             visibleUpdateModal = true;
             updateModel.Entity = Utilities.DeepCloneProtoUnityEntity(unity.Entity);
+            // Ω‚Œˆƒ£øÈ
+            try
+            {
+                updateModel._dependencyConfig = Utilities.FromBase64XML<UnityModel.DependencyConfig>(updateModel.Entity.DependencyConfig) ?? new UnityModel.DependencyConfig();
+            }
+            catch (System.Exception ex)
+            {
+                logger_?.Exception(ex);
+            }
+            StringBuilder sbReference = new StringBuilder();
+            foreach (var reference in updateModel._dependencyConfig.schema.body.references)
+            {
+                string? referenceStr = Utilities.DependencyReferenceToString(reference) ?? null;
+                if (string.IsNullOrEmpty(referenceStr))
+                    continue;
+                sbReference.AppendLine(referenceStr);
+            }
+            updateModel._dependencyReferencesInput = sbReference.ToString();
+            StringBuilder sbPlugin = new StringBuilder();
+            foreach (var plugin in updateModel._dependencyConfig.schema.body.plugins)
+            {
+                string? pluginStr = Utilities.DependencyPluginToString(plugin) ?? null;
+                if (string.IsNullOrEmpty(pluginStr))
+                    continue;
+                sbPlugin.AppendLine(pluginStr);
+            }
+            updateModel._dependencyPluginsInput = sbPlugin.ToString();
+            // Ω‚Œˆº”‘ÿ
+            try
+            {
+                updateModel._bootloaderConfig = Utilities.FromBase64XML<UnityModel.BootloaderConfig>(updateModel.Entity.BootloaderConfig) ?? new UnityModel.BootloaderConfig();
+            }
+            catch (System.Exception ex)
+            {
+                logger_?.Exception(ex);
+            }
+            // Ω‚Œˆ…˝º∂
+            try
+            {
+                updateModel._upgradeConfig = Utilities.FromBase64XML<UnityModel.UpgradeConfig>(updateModel.Entity.UpgradeConfig) ?? new UnityModel.UpgradeConfig();
+            }
+            catch (System.Exception ex)
+            {
+                logger_?.Exception(ex);
+            }
+            StringBuilder sbBootSteps = new StringBuilder();
+            foreach (var step in updateModel._bootloaderConfig.schema.steps)
+            {
+                string? stepStr = Utilities.BootloaderStepToString(step) ?? null;
+                if (string.IsNullOrEmpty(stepStr))
+                    continue;
+                sbBootSteps.AppendLine(stepStr);
+            }
+            updateModel._bootloaderStepsInput = sbBootSteps.ToString();
         }
 
         private void onUpdateModalOk()
@@ -275,6 +362,39 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
                 logger_?.Error("model is null");
                 return;
             }
+            // “¿¿µ≈‰÷√µƒbase64±‡¬Î
+            var referenceS = new List<UnityModel.DependencyConfig.Reference>();
+            foreach (var referenceInput in model._dependencyReferencesInput.Split("\n"))
+            {
+                var reference = Utilities.DependencyReferenceFromString(referenceInput);
+                if (null == reference)
+                    continue;
+                referenceS.Add(reference);
+            }
+            model._dependencyConfig.schema.body.references = referenceS.ToArray();
+            var pluginS = new List<UnityModel.DependencyConfig.Plugin>();
+            foreach (var pluginInput in model._dependencyPluginsInput.Split("\n"))
+            {
+                var plugin = Utilities.DependencyPluginFromString(pluginInput);
+                if (null == plugin)
+                    continue;
+                pluginS.Add(plugin);
+            }
+            model._dependencyConfig.schema.body.plugins = pluginS.ToArray();
+            string dependencyConfigBase64 = Utilities.ToBase64XML(model._dependencyConfig);
+            // º”‘ÿ≈‰÷√µƒbase64±‡¬Î
+            var bootStepS = new List<UnityModel.BootloaderConfig.BootStep>();
+            foreach (var bootStepInput in model._bootloaderStepsInput.Split("\n"))
+            {
+                var step = Utilities.BootloaderStepFromString(bootStepInput);
+                if (null == step)
+                    continue;
+                bootStepS.Add(step);
+            }
+            model._bootloaderConfig.schema.steps = bootStepS.ToArray();
+            string bootloaderConfigBase64 = Utilities.ToBase64XML(model._bootloaderConfig);
+            // …˝º∂≈‰÷√µƒbase64±‡¬Î
+            string upgradeConfigBase64 = Utilities.ToBase64XML(model._upgradeConfig);
             var req = new UnityUpdateRequest();
             req.Uuid = model.Entity.Uuid;
             req.Name = model.Entity.Name;
@@ -287,6 +407,9 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
             req.GraphicsReferenceResolutionWidth = model.Entity.GraphicsReferenceResolutionWidth;
             req.GraphicsReferenceResolutionHeight = model.Entity.GraphicsReferenceResolutionHeight;
             req.GraphicsReferenceResolutionMatch = model.Entity.GraphicsReferenceResolutionMatch;
+            req.DependencyConfig = dependencyConfigBase64;
+            req.BootloaderConfig = bootloaderConfigBase64;
+            req.UpgradeConfig = upgradeConfigBase64;
             req.Application = model.Entity.Application;
             var dto = new UnityUpdateRequestDTO(req);
             Error err = await bridge.OnUpdateSubmit(dto, null);
@@ -295,28 +418,21 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
                 logger_?.Error(err.getMessage());
             }
         }
-
-
         #endregion
 
         #region Table
         private class TableModel
         {
             public UnityEntity Entity { get; set; } = new UnityEntity();
+            public UnityModel.DependencyConfig _dependencyConfig { get; set; } = new UnityModel.DependencyConfig();
+            public UnityModel.BootloaderConfig _bootloaderConfig { get; set; } = new UnityModel.BootloaderConfig();
+            public UnityModel.UpgradeConfig _upgradeConfig { get; set; } = new UnityModel.UpgradeConfig();
 
             public string _GraphicsReferenceResolution
             {
                 get
                 {
                     return string.Format("{0}x{1}", Entity.GraphicsReferenceResolutionWidth, Entity.GraphicsReferenceResolutionHeight);
-                }
-            }
-
-            public string _GraphicsQuality
-            {
-                get
-                {
-                    return Utilities.QualityToString(Entity.GraphicsQuality);
                 }
             }
         }

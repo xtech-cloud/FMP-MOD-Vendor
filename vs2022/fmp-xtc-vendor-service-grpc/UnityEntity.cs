@@ -22,5 +22,8 @@ namespace XTC.FMP.MOD.Vendor.App.Service
         public int GraphicsReferenceResolutionHeight { get; set; }
         public float GraphicsReferenceResolutionMatch { get; set; }
         public string Application { get; set; } = "";
+        public string DependencyConfig { get; set; } = "";
+        public string BootloaderConfig { get; set; } = "";
+        public string UpgradeConfig { get; set; } = "";
     }
 }
