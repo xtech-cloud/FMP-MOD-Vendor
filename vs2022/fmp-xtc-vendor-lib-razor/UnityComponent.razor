@@ -6,265 +6,283 @@
 @using XTC.FMP.MOD.Vendor.LIB.MVCS
 
 <Card>
-    <Form @ref="searchForm"
-          Loading="searchLoading"
-          Model="searchFormData"
-          OnFinish="@onSearchSubmit">
-        <Row Gutter="24">
-            @for (var i = 0; i < (searchExpand ? searchFormData.Count : (searchFormData.Count < 3 ? searchFormData.Count : 3)); i++)
-            {
-                var index = i;
-                <GridCol Span="8" @key="index">
-                    <FormItem Label="@(context[index].Text)">
-                        <Input @bind-Value="@(context[index].Value)" Placeholder="请输入" />
-                    </FormItem>
-                </GridCol>
-            }
-        </Row>
-        <Row>
-            <GridCol Span="24" Style="text-align:right;">
-                <Button Type="primary" HtmlType="submit">查询</Button>
-                <Button Style="margin: 0 8px;" OnClick="@onSearchResetClick">重置</Button>
-                <!--
-                <a style="font-size:12px" onclick="()=>{}">
-                    <Icon Type="@(searchExpand?"up":"down")"></Icon>  Collapse
-                </a>
-                -->
-            </GridCol>
-        </Row>
-    </Form>
+	<Form @ref="searchForm"
+		  Loading="searchLoading"
+		  Model="searchFormData"
+		  OnFinish="@onSearchSubmit">
+		<Row Gutter="24">
+			@for (var i = 0; i < (searchExpand ? searchFormData.Count : (searchFormData.Count < 3 ? searchFormData.Count : 3)); i++)
+			{
+				var index = i;
+				<GridCol Span="8" @key="index">
+					<FormItem Label="@(context[index].Text)">
+						<Input @bind-Value="@(context[index].Value)" Placeholder="请输入" />
+					</FormItem>
+				</GridCol>
+			}
+		</Row>
+		<Row>
+			<GridCol Span="24" Style="text-align:right;">
+				<Button Type="primary" HtmlType="submit">查询</Button>
+				<Button Style="margin: 0 8px;" OnClick="@onSearchResetClick">重置</Button>
+				<!--
+				<a style="font-size:12px" onclick="()=>{}">
+					<Icon Type="@(searchExpand?"up":"down")"></Icon>  Collapse
+				</a>
+				-->
+			</GridCol>
+		</Row>
+	</Form>
 </Card>
 
 <Card Style="margin-top:24px">
-    <div style="display:flex; margin-bottom:24px;">
-        @if (permissionS_.ContainsKey(Permissions.UnityCreate))
-        {
-            <Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Plus" OnClick="@onCreateClick">创建</Button>
-        }
-    </div>
-    <Table TItem="TableModel" DataSource="@tableModel" Total="@tableTotal" PageIndex="tablePageIndex" PageSize="tablePageSize" OnPageIndexChange="onPageIndexChanged">
-        <PropertyColumn Title="名称" Property="c=>c.Entity.Name"></PropertyColumn>
-        <PropertyColumn Title="备注" Property="c=>c.Entity.Display"></PropertyColumn>
-        <PropertyColumn Title="锁定帧数" Property="c=>c.Entity.GraphicsFps"></PropertyColumn>
-        <PropertyColumn Title="画面质量" Property="c=>qualityS[c.Entity.GraphicsQuality].Label"></PropertyColumn>
-        <PropertyColumn Title="运行分辨率" Property="c=>c.Entity.GraphicsPixelResolution"></PropertyColumn>
-        <PropertyColumn Title="UI设计分辨率" Property="c=>c._GraphicsReferenceResolution"></PropertyColumn>
-        <PropertyColumn Title="适配权重" Property="c=>c.Entity.GraphicsReferenceResolutionMatch"></PropertyColumn>
-        <Column Title="皮肤" TData="string">
-            @if (!string.IsNullOrEmpty(context.Entity.SkinSplashBackground))
-            {
-                <Tag Color="geekblue">过场界面背景图</Tag>
-            }
-            @if (!string.IsNullOrEmpty(context.Entity.SkinSplashSlogan))
-            {
-                <Tag Color="geekblue">过场界面标语图</Tag>
-            }
-        </Column>
-        <PropertyColumn Title="模块" Property="c=>c._dependencyConfig.schema.body.references">
-            @foreach (var reference in context._dependencyConfig.schema.body.references)
-            {
-                <Tag Color="geekblue">@reference.org@("_")@reference.module@("@")@reference.version</Tag>
-            }
-        </PropertyColumn>
-        <PropertyColumn Title="插件" Property="c=>c._dependencyConfig.schema.body.plugins">
-            @foreach (var plugin in context._dependencyConfig.schema.body.plugins)
-            {
-                <Tag Color="geekblue">@plugin.name@("@")@plugin.version</Tag>
-            }
-        </PropertyColumn>
-        <Column Title="应用程序" TData="string">
-            @if (!string.IsNullOrEmpty(context.Entity.Application))
-            {
-                <Icon Type="check-circle" Theme="twotone" TwotoneColor="#52c41a" Height="2em" Width="2em" />
-            }
-        </Column>
-        <ActionColumn Title="操作" Fixed="right" Width="150">
-            <Space Size=@("middle")>
-                @if (permissionS_.ContainsKey(Permissions.UnityUpdate))
-                {
-                    <SpaceItem>
-                        <Button Size="small" OnClick="()=>onUpdateClick(context.Entity?.Uuid)">修改</Button>
-                    </SpaceItem>
-                }
-                <SpaceItem>
-                    <Button Size="small" Type="@ButtonType.Primary" OnClick="()=>onRunClick(context.Entity?.Uuid)">运行</Button>
-                </SpaceItem>
-                @if (permissionS_.ContainsKey(Permissions.UnityDelete))
-                {
-                    <SpaceItem>
-                        <Popconfirm Title="确定要删除这个包吗?"
-                                OnConfirm="@(()=>onConfirmDelete(context.Entity?.Uuid))"
-                                OnCancel="onCancelDelete"
-                                OkText="确定"
-                                CancelText="取消">
-                            <Button Danger Size="small">删除</Button>
-                        </Popconfirm>
-                    </SpaceItem>
-                }
-            </Space>
-        </ActionColumn>
-    </Table>
+	<div style="display:flex; margin-bottom:24px;">
+		@if (permissionS_.ContainsKey(Permissions.UnityCreate))
+		{
+			<Button Type="@ButtonType.Primary" Icon="@IconType.Outline.Plus" OnClick="@onCreateClick">创建</Button>
+		}
+	</div>
+	<Table TItem="TableModel" DataSource="@tableModel" Total="@tableTotal" PageIndex="tablePageIndex" PageSize="tablePageSize" OnPageIndexChange="onPageIndexChanged">
+		<PropertyColumn Title="名称" Property="c=>c.Entity.Name"></PropertyColumn>
+		<PropertyColumn Title="备注" Property="c=>c.Entity.Display"></PropertyColumn>
+		<PropertyColumn Title="锁定帧数" Property="c=>c.Entity.GraphicsFps"></PropertyColumn>
+		<PropertyColumn Title="画面质量" Property="c=>qualityS[c.Entity.GraphicsQuality].Label"></PropertyColumn>
+		<PropertyColumn Title="运行分辨率" Property="c=>c.Entity.GraphicsPixelResolution"></PropertyColumn>
+		<PropertyColumn Title="UI设计分辨率" Property="c=>c._GraphicsReferenceResolution"></PropertyColumn>
+		<PropertyColumn Title="适配权重" Property="c=>c.Entity.GraphicsReferenceResolutionMatch"></PropertyColumn>
+		<Column Title="皮肤" TData="string">
+			@if (!string.IsNullOrEmpty(context.Entity.SkinSplashBackground))
+			{
+				<Tag Color="geekblue">过场界面背景图</Tag>
+			}
+			@if (!string.IsNullOrEmpty(context.Entity.SkinSplashSlogan))
+			{
+				<Tag Color="geekblue">过场界面标语图</Tag>
+			}
+		</Column>
+		<PropertyColumn Title="模块" Property="c=>c._dependencyConfig.schema.body.references">
+			@foreach (var reference in context._dependencyConfig.schema.body.references)
+			{
+				<Tag Color="geekblue">@reference.org@("_")@reference.module@("@")@reference.version</Tag>
+			}
+		</PropertyColumn>
+		<PropertyColumn Title="插件" Property="c=>c._dependencyConfig.schema.body.plugins">
+			@foreach (var plugin in context._dependencyConfig.schema.body.plugins)
+			{
+				<Tag Color="geekblue">@plugin.name@("@")@plugin.version</Tag>
+			}
+		</PropertyColumn>
+		<Column Title="应用程序" TData="string">
+			@if (!string.IsNullOrEmpty(context.Entity.Application))
+			{
+				<Icon Type="check-circle" Theme="twotone" TwotoneColor="#52c41a" Height="2em" Width="2em" />
+			}
+		</Column>
+		<ActionColumn Title="操作" Fixed="right" Width="150">
+			<Space Size=@("middle")>
+				@if (permissionS_.ContainsKey(Permissions.UnityUpdate))
+				{
+					<SpaceItem>
+						<Button Size="small" OnClick="()=>onUpdateClick(context.Entity?.Uuid)">修改</Button>
+					</SpaceItem>
+				}
+				<SpaceItem>
+					<Button Size="small" Type="@ButtonType.Primary" OnClick="()=>onRunClick(context.Entity?.Uuid)">运行</Button>
+				</SpaceItem>
+				@if (permissionS_.ContainsKey(Permissions.UnityDelete))
+				{
+					<SpaceItem>
+						<Popconfirm Title="确定要删除这个包吗?"
+								OnConfirm="@(()=>onConfirmDelete(context.Entity?.Uuid))"
+								OnCancel="onCancelDelete"
+								OkText="确定"
+								CancelText="取消">
+							<Button Danger Size="small">删除</Button>
+						</Popconfirm>
+					</SpaceItem>
+				}
+			</Space>
+		</ActionColumn>
+	</Table>
 </Card>
 
 <Modal Title="创建"
-       Visible="@visibleCreateModal"
-       ConfirmLoading="@createLoading"
-       OnOk="@onCreateModalOk"
-       OnCancel="@onCreateModalCancel">
-    <Form Model="@createModel"
-          LabelColSpan="8"
-          WrapperColSpan="16"
-          OnFinish="onCreateSubmit"
-          @ref="@createForm">
-        <FormItem Label="名称">
-            <Input @bind-Value="@context.Name" />
-        </FormItem>
-        <FormItem Label="备注">
-            <Input @bind-Value="@context.Display" />
-        </FormItem>
-    </Form>
+	   Visible="@visibleCreateModal"
+	   ConfirmLoading="@createLoading"
+	   OnOk="@onCreateModalOk"
+	   OnCancel="@onCreateModalCancel">
+	<Form Model="@createModel"
+		  LabelColSpan="8"
+		  WrapperColSpan="16"
+		  OnFinish="onCreateSubmit"
+		  @ref="@createForm">
+		<FormItem Label="名称">
+			<Input @bind-Value="@context.Name" />
+		</FormItem>
+		<FormItem Label="备注">
+			<Input @bind-Value="@context.Display" />
+		</FormItem>
+	</Form>
 </Modal>
 
 <Modal Title="更新"
-       Visible="@visibleUpdateModal"
-       ConfirmLoading="@updateLoading"
-       OnOk="@onUpdateModalOk"
-       OnCancel="@onUpdateModalCancel"
-       Width="640">
-    <Form Model="@updateModel"
-          LabelColSpan="8"
-          WrapperColSpan="16"
-          OnFinish="onUpdateSubmit"
-          @ref="@updateForm">
-        <FormItem Label="名称" Required>
-            <Input @bind-Value="@context.Entity.Name" />
-        </FormItem>
-        <FormItem Label="备注">
-            <Input @bind-Value="@context.Entity.Display" />
-        </FormItem>
-        <FormItem Label="应用程序">
-            <Input @bind-Value="@context.Entity.Application" />
-        </FormItem>
-        <Tabs>
-            <TabPane Tab="图像设置" Key="1">
-                <FormItem Label="画面质量">
-                    <Select @bind-Value="@context.Entity.GraphicsQuality"
-                            TItem="Quality"
-                            TItemValue="int"
-                            DataSource="@qualityS"
-                            ValueName="@nameof(Quality.Level)"
-                            LabelName="@nameof(Quality.Label)"
-                            Style="width:120px">
-                    </Select>
-                </FormItem>
-                <FormItem Label="锁定帧数">
-                    <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsFps" Min="30" Max="120" Step="30" />
-                </FormItem>
-                <FormItem Label="运行分辨率">
-                    <Input @bind-Value="@context.Entity.GraphicsPixelResolution" />
-                </FormItem>
-                <FormItem Label="UI设计分辨率宽度">
-                    <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionWidth" Min="0" />
-                </FormItem>
-                <FormItem Label="UI设计分辨率高度">
-                    <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionHeight" Min="0" />
-                </FormItem>
-                <FormItem Label="UI设计分辨率适配权重">
-                    <AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionMatch" Max="1.0f" Min="0.0f" Step="0.1f" />
-                </FormItem>
-            </TabPane>
-            <TabPane Tab="皮肤设置" Key="2">
-                <FormItem Label="过场界面背景图">
-                    <Input @bind-Value="@context.Entity.SkinSplashBackground" AllowClear="true" />
-                </FormItem>
-                <FormItem Label="过场界面标语图">
-                    <Input @bind-Value="@context.Entity.SkinSplashSlogan" AllowClear="true" />
-                </FormItem>
-            </TabPane>
-            <TabPane Tab="依赖设置" Key="3">
-                <FormItem Label="环境">
-                    <Select @bind-Value="@context._dependencyConfig.schema.body.options.environment"
-                            TItem="Environment"
-                            TItemValue="string"
-                            DataSource="@environmentS"
-                            ValueName="@nameof(Environment.Value)"
-                            LabelName="@nameof(Environment.Label)"
-                            Style="width:120px">
-                    </Select>
-                </FormItem>
-                <FormItem Label="仓库地址">
-                    <Input @bind-Value="@context._dependencyConfig.schema.body.options.repository" />
-                </FormItem>
-                <FormItem Label="模块">
-                    <TextArea @bind-Value="@context._dependencyReferencesInput" MinRows="1" />
-                </FormItem>
-                <FormItem Label="插件">
-                    <TextArea @bind-Value="@context._dependencyPluginsInput" MinRows="1" />
-                </FormItem>
-            </TabPane>
-            <TabPane Tab="引导设置" Key="4">
-                <FormItem Label="步骤">
-                    <TextArea @bind-Value="@context._bootloaderStepsInput" MinRows="1" />
-                </FormItem>
-            </TabPane>
-            <TabPane Tab="升级设置" Key="5">
-                <FormItem Label="策略">
-                    <Select @bind-Value="@context._upgradeConfig.schema.body.update.strategy"
-                            TItem="UpgradeStrategy"
-                            TItemValue="string"
-                            DataSource="@upgradeStrategyS"
-                            ValueName="@nameof(UpgradeStrategy.Value)"
-                            LabelName="@nameof(UpgradeStrategy.Label)"
-                            Style="width:120px">
-                    </Select>
-                </FormItem>
-            </TabPane>
-        </Tabs>
-    </Form>
+	   Visible="@visibleUpdateModal"
+	   ConfirmLoading="@updateLoading"
+	   OnOk="@onUpdateModalOk"
+	   OnCancel="@onUpdateModalCancel"
+	   Width="640">
+	<Form Model="@updateModel"
+		  LabelColSpan="8"
+		  WrapperColSpan="16"
+		  OnFinish="onUpdateSubmit"
+		  @ref="@updateForm">
+		<FormItem Label="名称" Required>
+			<Input @bind-Value="@context.Entity.Name" />
+		</FormItem>
+		<FormItem Label="备注">
+			<Input @bind-Value="@context.Entity.Display" />
+		</FormItem>
+		<FormItem Label="应用程序">
+			<Input @bind-Value="@context.Entity.Application" />
+		</FormItem>
+		<Tabs>
+			<TabPane Tab="图像设置" Key="1">
+				<FormItem Label="画面质量">
+					<Select @bind-Value="@context.Entity.GraphicsQuality"
+							TItem="Quality"
+							TItemValue="int"
+							DataSource="@qualityS"
+							ValueName="@nameof(Quality.Level)"
+							LabelName="@nameof(Quality.Label)"
+							Style="width:120px">
+					</Select>
+				</FormItem>
+				<FormItem Label="锁定帧数">
+					<AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsFps" Min="30" Max="120" Step="30" />
+				</FormItem>
+				<FormItem Label="运行分辨率">
+					<Input @bind-Value="@context.Entity.GraphicsPixelResolution" />
+				</FormItem>
+				<FormItem Label="UI设计分辨率宽度">
+					<AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionWidth" Min="0" />
+				</FormItem>
+				<FormItem Label="UI设计分辨率高度">
+					<AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionHeight" Min="0" />
+				</FormItem>
+				<FormItem Label="UI设计分辨率适配权重">
+					<AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionMatch" Max="1.0f" Min="0.0f" Step="0.1f" />
+				</FormItem>
+			</TabPane>
+			<TabPane Tab="皮肤设置" Key="2">
+				<FormItem Label="过场界面背景图">
+					<Input @bind-Value="@context.Entity.SkinSplashBackground" AllowClear="true" />
+				</FormItem>
+				<FormItem Label="过场界面标语图">
+					<Input @bind-Value="@context.Entity.SkinSplashSlogan" AllowClear="true" />
+				</FormItem>
+			</TabPane>
+			<TabPane Tab="依赖设置" Key="3">
+				<FormItem Label="环境">
+					<Select @bind-Value="@context._dependencyConfig.schema.body.options.environment"
+							TItem="Environment"
+							TItemValue="string"
+							DataSource="@environmentS"
+							ValueName="@nameof(Environment.Value)"
+							LabelName="@nameof(Environment.Label)"
+							Style="width:120px">
+					</Select>
+				</FormItem>
+				<FormItem Label="更新策略">
+					<Select @bind-Value="@context._upgradeConfig.schema.body.update.strategy"
+							TItem="UpgradeStrategy"
+							TItemValue="string"
+							DataSource="@upgradeStrategyS"
+							ValueName="@nameof(UpgradeStrategy.Value)"
+							LabelName="@nameof(UpgradeStrategy.Label)"
+							Style="width:120px">
+					</Select>
+				</FormItem>
+				<FormItem Label="仓库地址">
+					<Input @bind-Value="@context._dependencyConfig.schema.body.options.repository" />
+				</FormItem>
+				<FormItem Label="模块">
+					<TextArea @bind-Value="@context._dependencyReferencesInput" MinRows="1" DefaultToEmptyString=true AutoSize=true OnBlur="onDependencyBlur" />
+				</FormItem>
+				<FormItem Label="插件">
+					<TextArea @bind-Value="@context._dependencyPluginsInput" MinRows="1" />
+				</FormItem>
+			</TabPane>
+			<TabPane Tab="资源配置" Key="4">
+				<Tabs>
+					@foreach (var pair in context._rawModuleCatalogS)
+					{
+						<TabPane Key="@pair.Key" Tab="@pair.Key">
+							<TextArea MinRows="5" @bind-Value="@pair.Value" DefaultToEmptyString AutoSize></TextArea>
+						</TabPane>
+					}
+				</Tabs>
+			</TabPane>
+			<TabPane Tab="模块配置" Key="5">
+				<Tabs>
+					@foreach (var pair in context._rawModuleConfigS)
+					{
+						<TabPane Key="@pair.Key" Tab="@pair.Key">
+							<TextArea MinRows="5" @bind-Value="@pair.Value" DefaultToEmptyString AutoSize></TextArea>
+						</TabPane>
+					}
+				</Tabs>
+			</TabPane>
+			<TabPane Tab="引导设置" Key="6">
+				<FormItem Label="步骤">
+					<TextArea @bind-Value="@context._bootloaderStepsInput" MinRows="1" />
+				</FormItem>
+			</TabPane>
+		</Tabs>
+	</Form>
 </Modal>
 
 <style>
-    .card-search-col {
-        margin-right: 64px;
-        margin-bottom: 24px;
-    }
+	.card-search-col {
+		margin-right: 64px;
+		margin-bottom: 24px;
+	}
 </style>
 
 @code {
-    class Quality
-    {
-        public int Level { get; set; }
-        public string Label { get; set; }
-    }
+	class Quality
+	{
+		public int Level { get; set; }
+		public string Label { get; set; }
+	}
 
-    List<Quality> qualityS = new List<Quality>{
-        new Quality{Level=0, Label="非常低"},
-        new Quality{Level=1, Label="低"},
-        new Quality{Level=2, Label="中"},
-        new Quality{Level=3, Label="高"},
-        new Quality{Level=4, Label="非常高"},
-        new Quality{Level=5, Label="极高"},
-    };
+	List<Quality> qualityS = new List<Quality>{
+		new Quality{Level=0, Label="非常低"},
+		new Quality{Level=1, Label="低"},
+		new Quality{Level=2, Label="中"},
+		new Quality{Level=3, Label="高"},
+		new Quality{Level=4, Label="非常高"},
+		new Quality{Level=5, Label="极高"},
+	};
 
-    class Environment
-    {
-        public string Value { get; set; } = "";
-        public string Label { get; set; } = "";
-    }
-    List<Environment> environmentS = new List<Environment>{
-        new Environment{Value="product", Label="生产"},
-        new Environment{Value="develop", Label="开发"},
-    };
+	class Environment
+	{
+		public string Value { get; set; } = "";
+		public string Label { get; set; } = "";
+	}
+	List<Environment> environmentS = new List<Environment>{
+		new Environment{Value="product", Label="生产"},
+		new Environment{Value="develop", Label="开发"},
+	};
 
-    class UpgradeStrategy
-    {
-        public string Value { get; set; } = "";
-        public string Label { get; set; } = "";
-    }
-    List<UpgradeStrategy> upgradeStrategyS = new List<UpgradeStrategy>{
-        new UpgradeStrategy{Value="skip", Label="跳过"},
-        new UpgradeStrategy{Value="auto", Label="自动"},
-        new UpgradeStrategy{Value="manaul", Label="手动"},
-    };
+	class UpgradeStrategy
+	{
+		public string Value { get; set; } = "";
+		public string Label { get; set; } = "";
+	}
+	List<UpgradeStrategy> upgradeStrategyS = new List<UpgradeStrategy>{
+		new UpgradeStrategy{Value="skip", Label="跳过"},
+		new UpgradeStrategy{Value="auto", Label="自动"},
+		new UpgradeStrategy{Value="manaul", Label="手动"},
+	};
 }
 

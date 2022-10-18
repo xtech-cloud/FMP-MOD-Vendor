@@ -10,6 +10,7 @@ using AntDesign;
 using AntDesign.TableModels;
 using Microsoft.JSInterop;
 using System.Text;
+using System.Net;
 
 namespace XTC.FMP.MOD.Vendor.LIB.Razor
 {
@@ -250,6 +251,12 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
         #region Update Modal
         private class UpdateModel
         {
+            public class StringPair
+            {
+                public string Key = "";
+                public string Value = "";
+            }
+
             public UnityEntity Entity { get; set; } = new UnityEntity();
             public UnityModel.DependencyConfig _dependencyConfig { get; set; } = new UnityModel.DependencyConfig();
             public UnityModel.BootloaderConfig _bootloaderConfig { get; set; } = new UnityModel.BootloaderConfig();
@@ -258,6 +265,9 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
             public string _dependencyReferencesInput { get; set; } = "";
             public string _dependencyPluginsInput { get; set; } = "";
             public string _bootloaderStepsInput { get; set; } = "";
+
+            public List<StringPair> _rawModuleCatalogS = new List<StringPair>();
+            public List<StringPair> _rawModuleConfigS = new List<StringPair>();
         }
 
         private bool visibleUpdateModal = false;
@@ -333,6 +343,28 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
                 if (string.IsNullOrEmpty(stepStr))
                     continue;
                 sbBootSteps.AppendLine(stepStr);
+            }
+            // 解析模块编目
+            updateModel._rawModuleCatalogS.Clear();
+            foreach (var pair in updateModel.Entity.ModuleCatalogs)
+            {
+                var catalog = new UpdateModel.StringPair
+                {
+                    Key = pair.Key,
+                    Value = Encoding.UTF8.GetString(Convert.FromBase64String(pair.Value)),
+                };
+                updateModel._rawModuleCatalogS.Add(catalog);
+            }
+            // 解析模块配置
+            updateModel._rawModuleConfigS.Clear();
+            foreach (var pair in updateModel.Entity.ModuleConfigs)
+            {
+                var config = new UpdateModel.StringPair
+                {
+                    Key = pair.Key,
+                    Value = Encoding.UTF8.GetString(Convert.FromBase64String(pair.Value)),
+                };
+                updateModel._rawModuleConfigS.Add(config);
             }
             updateModel._bootloaderStepsInput = sbBootSteps.ToString();
         }
@@ -410,6 +442,10 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
             req.DependencyConfig = dependencyConfigBase64;
             req.BootloaderConfig = bootloaderConfigBase64;
             req.UpgradeConfig = upgradeConfigBase64;
+            foreach(var pair in model._rawModuleCatalogS)
+                req.ModuleCatalogs.Add(pair.Key, Convert.ToBase64String(Encoding.UTF8.GetBytes(pair.Value)));
+            foreach(var pair in model._rawModuleConfigS)
+                req.ModuleConfigs.Add(pair.Key, Convert.ToBase64String(Encoding.UTF8.GetBytes(pair.Value)));
             req.Application = model.Entity.Application;
             var dto = new UnityUpdateRequestDTO(req);
             Error err = await bridge.OnUpdateSubmit(dto, null);
@@ -514,6 +550,43 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
             {
                 string uri = string.Format("{0}?vendor={1}", unity.Entity.Application, unity.Entity.Uuid);
                 await jsRuntime_.InvokeAsync<object>("open", uri, "_blank");
+            }
+        }
+
+        private void onDependencyBlur()
+        {
+            List<UpdateModel.StringPair> catalogS = updateModel._rawModuleCatalogS;
+            List<UpdateModel.StringPair> configS = updateModel._rawModuleConfigS;
+            updateModel._rawModuleCatalogS.Clear();
+            updateModel._rawModuleConfigS.Clear();
+            foreach (var referenceInput in updateModel._dependencyReferencesInput.Split("\n"))
+            {
+                var reference = Utilities.DependencyReferenceFromString(referenceInput);
+                if (null == reference)
+                    continue;
+                string module = string.Format("{0}_{1}", reference.org, reference.module);
+
+                var catalog = catalogS.Find((_item) =>
+                {
+                    return _item.Key.Equals(module);
+                });
+                var catalogPair = new UpdateModel.StringPair
+                {
+                    Key = module,
+                };
+                catalogPair.Value = null == catalog ? "" : catalog.Value;
+                updateModel._rawModuleCatalogS.Add(catalogPair);
+
+                var config = configS.Find((_item) =>
+                {
+                    return _item.Key.Equals(module);
+                });
+                var configPair = new UpdateModel.StringPair
+                {
+                    Key = module,
+                };
+                configPair.Value = null == config ? "" : configPair.Value;
+                updateModel._rawModuleConfigS.Add(configPair);
             }
         }
     }

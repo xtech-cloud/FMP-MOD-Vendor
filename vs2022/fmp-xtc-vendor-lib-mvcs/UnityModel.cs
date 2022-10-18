@@ -1,6 +1,5 @@
 
 using XTC.FMP.LIB.MVCS;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace XTC.FMP.MOD.Vendor.LIB.MVCS

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.NetworkInformation;
@@ -48,6 +49,12 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             entity.DependencyConfig = _entity.DependencyConfig;
             entity.BootloaderConfig = _entity.BootloaderConfig;
             entity.UpgradeConfig = _entity.UpgradeConfig;
+            entity.ModuleCatalogs.Clear();
+            foreach(var pair in _entity.ModuleCatalogs)
+                entity.ModuleCatalogs[pair.Key] = pair.Value;
+            entity.ModuleConfigs.Clear();
+            foreach(var pair in _entity.ModuleConfigs)
+                entity.ModuleConfigs[pair.Key] = pair.Value;
             return entity;
         }
 
@@ -95,6 +102,25 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             return result as T;
         }
 
+        public static string ToBase64JSON<T>(T? _json) where T : class, new()
+        {
+            if (null == _json)
+                return "";
+            string result = "";
+            string json = JsonConvert.SerializeObject(_json);
+            result = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
+            return result;
+        }
+
+        public static T? FromBase64JSON<T>(string? _json) where T : class, new()
+        {
+            if (null == _json)
+                return null;
+            if (string.IsNullOrEmpty(_json))
+                return null;
+            byte[] bytes = Convert.FromBase64String(_json);
+            return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(bytes));
+        }
 
         public static string? DependencyReferenceToString(UnityModel.DependencyConfig.Reference? _reference)
         {

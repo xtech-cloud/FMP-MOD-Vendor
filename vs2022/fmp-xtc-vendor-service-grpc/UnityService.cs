@@ -128,6 +128,12 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             unity.DependencyConfig = _request.DependencyConfig;
             unity.BootloaderConfig = _request.BootloaderConfig;
             unity.UpgradeConfig = _request.UpgradeConfig;
+            unity.ModuleConfigS.Clear();
+            foreach(var pair in _request.ModuleConfigs)
+                unity.ModuleConfigS[pair.Key] = pair.Value;
+            unity.ModuleCatalogS.Clear();
+            foreach(var pair in _request.ModuleCatalogs)
+                unity.ModuleCatalogS[pair.Key] = pair.Value;
 
             await unityDAO_.UpdateAsync(_request.Uuid, unity);
 

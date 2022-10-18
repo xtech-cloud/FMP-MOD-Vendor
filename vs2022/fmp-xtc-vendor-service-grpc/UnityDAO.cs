@@ -33,6 +33,8 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             unity.DependencyConfig = "";
             unity.BootloaderConfig = "";
             unity.UpgradeConfig = "";
+            unity.ModuleConfigS = new Dictionary<string, string>();
+            unity.ModuleCatalogS = new Dictionary<string, string>();
             return unity;
         }
 
@@ -54,6 +56,12 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             unity.DependencyConfig = _unity.DependencyConfig;
             unity.BootloaderConfig = _unity.BootloaderConfig;
             unity.UpgradeConfig = _unity.UpgradeConfig;
+            unity.ModuleCatalogs.Clear();
+            foreach(var pair in _unity.ModuleCatalogS)
+                unity.ModuleCatalogs[pair.Key] = pair.Value;
+            unity.ModuleConfigs.Clear();
+            foreach(var pair in _unity.ModuleConfigS)
+                unity.ModuleConfigs[pair.Key] = pair.Value;
             return unity;
         }
 
