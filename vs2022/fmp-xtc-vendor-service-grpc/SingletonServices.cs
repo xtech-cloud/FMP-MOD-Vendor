@@ -9,7 +9,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
         private IMongoDatabase mongoDatabase_;
         private BlazorDAO daoBlazor_;
         private UnityDAO daoUnity_;
-        private MinIOClient minioClient_;
+        private MinIOClient clientMinIO_;
 
         /// <summary>
         /// 构造函数
@@ -19,7 +19,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
         /// </remarks>
         public SingletonServices(IOptions<DatabaseSettings> _databaseSettings, IOptions<MinIOSettings> _minioSettings)
         {
-            minioClient_ = new MinIOClient(_minioSettings);
+            clientMinIO_ = new MinIOClient(_minioSettings);
 
             mongoClient_ = new MongoClient(_databaseSettings.Value.ConnectionString);
             mongoDatabase_ = mongoClient_.GetDatabase(_databaseSettings.Value.DatabaseName);
@@ -40,7 +40,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
 
         public MinIOClient getMinIOClient()
         {
-            return minioClient_;
+            return clientMinIO_;
         }
     }
 }
