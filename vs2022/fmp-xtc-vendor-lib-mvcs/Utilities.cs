@@ -48,7 +48,7 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             entity.Application = _entity.Application;
             entity.DependencyConfig = _entity.DependencyConfig;
             entity.BootloaderConfig = _entity.BootloaderConfig;
-            entity.UpgradeConfig = _entity.UpgradeConfig;
+            entity.UpdateConfig = _entity.UpdateConfig;
             entity.ModuleCatalogs.Clear();
             foreach(var pair in _entity.ModuleCatalogs)
                 entity.ModuleCatalogs[pair.Key] = pair.Value;

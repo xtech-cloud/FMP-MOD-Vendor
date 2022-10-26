@@ -6,9 +6,11 @@ using XTC.FMP.MOD.Vendor.App.Service;
 /// </summary>
 public class TestFixture : TestFixtureBase
 {
+    private SingletonServices singletonServices_;
     public TestFixture()
         : base()
     {
+        singletonServices_ = new SingletonServices(new DatabaseOptions(), new MinIOOptions());
     }
 
     public override void Dispose()
@@ -18,7 +20,7 @@ public class TestFixture : TestFixtureBase
 
     protected override void newBlazorService()
     {
-        serviceBlazor_ = new BlazorService(new BlazorDAO(new DatabaseOptions()), new MinIOClient(new MinIOOptions()));
+        serviceBlazor_ = new BlazorService(singletonServices_);
     }
 
     protected override void newHealthyService()
@@ -28,6 +30,6 @@ public class TestFixture : TestFixtureBase
 
     protected override void newUnityService()
     {
-        serviceUnity_ = new UnityService(new UnityDAO(new DatabaseOptions()), new MinIOClient(new MinIOOptions()));
+        serviceUnity_ = new UnityService(singletonServices_);
     }
 }

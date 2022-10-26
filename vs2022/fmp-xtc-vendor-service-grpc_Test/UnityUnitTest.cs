@@ -61,7 +61,7 @@ public class UnityTest : UnityUnitTestBase
             request.Application = "FMP";
             request.DependencyConfig = "Dependency";
             request.BootloaderConfig = "Bootloader";
-            request.UpgradeConfig = "Upgrade";
+            request.UpdateConfig = "Update";
             var response = await fixture_.getServiceUnity().Update(request, fixture_.context);
             Assert.Equal(0, response.Status.Code);
 
@@ -82,7 +82,7 @@ public class UnityTest : UnityUnitTestBase
             Assert.Equal("FMP", response2.Unity.Application);
             Assert.Equal("Dependency", response2.Unity.DependencyConfig);
             Assert.Equal("Bootloader", response2.Unity.BootloaderConfig);
-            Assert.Equal("Upgrade", response2.Unity.UpgradeConfig);
+            Assert.Equal("Update", response2.Unity.UpdateConfig);
         }
 
         {

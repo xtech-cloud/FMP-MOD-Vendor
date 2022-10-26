@@ -8,10 +8,10 @@ using MongoDB.Driver;
 
 namespace XTC.FMP.MOD.Vendor.App.Service
 {
-    public class UnityDAO : DAO<UnityEntity>
+    public class UnityDAO : MongoDAO<UnityEntity>
     {
-        public UnityDAO(IOptions<DatabaseSettings> _settings)
-        : base(_settings, "Unity")
+        public UnityDAO(IMongoDatabase _mongoDatabase)
+        : base(_mongoDatabase, "Unity")
         {
         }
 
@@ -32,7 +32,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             unity.Application = "";
             unity.DependencyConfig = "";
             unity.BootloaderConfig = "";
-            unity.UpgradeConfig = "";
+            unity.UpdateConfig = "";
             unity.ModuleConfigS = new Dictionary<string, string>();
             unity.ModuleCatalogS = new Dictionary<string, string>();
             return unity;
@@ -55,7 +55,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             unity.Application = _unity.Application;
             unity.DependencyConfig = _unity.DependencyConfig;
             unity.BootloaderConfig = _unity.BootloaderConfig;
-            unity.UpgradeConfig = _unity.UpgradeConfig;
+            unity.UpdateConfig = _unity.UpdateConfig;
             unity.ModuleCatalogs.Clear();
             foreach(var pair in _unity.ModuleCatalogS)
                 unity.ModuleCatalogs[pair.Key] = pair.Value;

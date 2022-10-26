@@ -112,7 +112,7 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
                     }
                     try
                     {
-                        item._upgradeConfig = Utilities.FromBase64XML<UnityModel.UpgradeConfig>(item.Entity.UpgradeConfig) ?? new UnityModel.UpgradeConfig();
+                        item._updateConfig = Utilities.FromBase64XML<UnityModel.UpdateConfig>(item.Entity.UpdateConfig) ?? new UnityModel.UpdateConfig();
                     }
                     catch (System.Exception ex)
                     {
@@ -260,7 +260,7 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
             public UnityEntity Entity { get; set; } = new UnityEntity();
             public UnityModel.DependencyConfig _dependencyConfig { get; set; } = new UnityModel.DependencyConfig();
             public UnityModel.BootloaderConfig _bootloaderConfig { get; set; } = new UnityModel.BootloaderConfig();
-            public UnityModel.UpgradeConfig _upgradeConfig { get; set; } = new UnityModel.UpgradeConfig();
+            public UnityModel.UpdateConfig _updateConfig { get; set; } = new UnityModel.UpdateConfig();
 
             public string _dependencyReferencesInput { get; set; } = "";
             public string _dependencyPluginsInput { get; set; } = "";
@@ -327,10 +327,10 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
             {
                 logger_?.Exception(ex);
             }
-            // 解析升级
+            // 解析更新
             try
             {
-                updateModel._upgradeConfig = Utilities.FromBase64XML<UnityModel.UpgradeConfig>(updateModel.Entity.UpgradeConfig) ?? new UnityModel.UpgradeConfig();
+                updateModel._updateConfig = Utilities.FromBase64XML<UnityModel.UpdateConfig>(updateModel.Entity.UpdateConfig) ?? new UnityModel.UpdateConfig();
             }
             catch (System.Exception ex)
             {
@@ -425,8 +425,8 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
             }
             model._bootloaderConfig.schema.steps = bootStepS.ToArray();
             string bootloaderConfigBase64 = Utilities.ToBase64XML(model._bootloaderConfig);
-            // 升级配置的base64编码
-            string upgradeConfigBase64 = Utilities.ToBase64XML(model._upgradeConfig);
+            // 更新配置的base64编码
+            string updateConfigBase64 = Utilities.ToBase64XML(model._updateConfig);
             var req = new UnityUpdateRequest();
             req.Uuid = model.Entity.Uuid;
             req.Name = model.Entity.Name;
@@ -441,7 +441,7 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
             req.GraphicsReferenceResolutionMatch = model.Entity.GraphicsReferenceResolutionMatch;
             req.DependencyConfig = dependencyConfigBase64;
             req.BootloaderConfig = bootloaderConfigBase64;
-            req.UpgradeConfig = upgradeConfigBase64;
+            req.UpdateConfig = updateConfigBase64;
             foreach(var pair in model._rawModuleCatalogS)
                 req.ModuleCatalogs.Add(pair.Key, Convert.ToBase64String(Encoding.UTF8.GetBytes(pair.Value)));
             foreach(var pair in model._rawModuleConfigS)
@@ -462,7 +462,7 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
             public UnityEntity Entity { get; set; } = new UnityEntity();
             public UnityModel.DependencyConfig _dependencyConfig { get; set; } = new UnityModel.DependencyConfig();
             public UnityModel.BootloaderConfig _bootloaderConfig { get; set; } = new UnityModel.BootloaderConfig();
-            public UnityModel.UpgradeConfig _upgradeConfig { get; set; } = new UnityModel.UpgradeConfig();
+            public UnityModel.UpdateConfig _updateConfig { get; set; } = new UnityModel.UpdateConfig();
 
             public string _GraphicsReferenceResolution
             {

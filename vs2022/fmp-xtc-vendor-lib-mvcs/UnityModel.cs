@@ -98,7 +98,7 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             public Schema schema { get; set; } = new Schema();
         }
 
-        public class UpgradeConfig
+        public class UpdateConfig
         {
             public class Schema
             {
@@ -112,7 +112,13 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
                 }
 
 
-                public class Update
+                public class FrameworkUpdate
+                {
+                    [XmlAttribute("strategy")]
+                    public string strategy { get; set; } = "skip";
+                }
+
+                public class AssetSyndication
                 {
                     [XmlAttribute("strategy")]
                     public string strategy { get; set; } = "skip";
@@ -120,8 +126,10 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
 
                 public class Body
                 {
-                    [XmlElement("Update")]
-                    public Update update { get; set; } = new Update();
+                    [XmlElement("FrameworkUpdate")]
+                    public FrameworkUpdate frameworkUpdate { get; set; } = new FrameworkUpdate();
+                    [XmlElement("AssetSyndication")]
+                    public AssetSyndication assetSyndication { get; set; } = new AssetSyndication();
                 }
 
                 [XmlElement("Body")]
@@ -130,8 +138,8 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
                 [XmlArray("Header"), XmlArrayItem("Field")]
                 public Field[] fields { get; set; } = new Field[] {
                     new Field {
-                        attribute = "Update.strategy",
-                        values = "升级策略，可选值为：skip, auto, manual",
+                        attribute = "strategy",
+                        values = "更新策略，可选值为：skip, auto, manual",
                     },
                 };
             }

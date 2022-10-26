@@ -8,29 +8,18 @@ namespace XTC.FMP.MOD.Vendor.App.Service
 {
     public class UnityService : UnityServiceBase
     {
-        private readonly MinIOClient minioClient_;
-        // 解开以下代码的注释，可支持数据库操作
-        private readonly UnityDAO unityDAO_;
+        private readonly SingletonServices singletonServices_;
 
-        /// <summary>
-        /// 构造函数
-        /// </summary>
-        /// <remarks>
-        /// 支持多个参数，均为自动注入，注入点位于MyProgram.PreBuild
-        /// </remarks>
-        /// <param name="_unityDAO">自动注入的数据操作对象</param>
-        /// <param name="_minioClient">自动注入的MinIO客户端</param>
-        public UnityService(UnityDAO _unityDAO, MinIOClient _minioClient)
+        public UnityService(SingletonServices _singletonServices)
         {
-            unityDAO_ = _unityDAO;
-            minioClient_ = _minioClient;
+            singletonServices_ = _singletonServices;
         }
 
         protected override async Task<UuidResponse> safeCreate(UnityCreateRequest _request, ServerCallContext _context)
         {
             ArgumentChecker.CheckRequiredString(_request.Name, "Name");
 
-            var unity = await unityDAO_.GetByNameAsync(_request.Name);
+            var unity = await singletonServices_.getUnityDAO().GetByNameAsync(_request.Name);
             if (null != unity)
             {
                 return new UuidResponse
@@ -39,11 +28,11 @@ namespace XTC.FMP.MOD.Vendor.App.Service
                 };
             }
 
-            unity = unityDAO_.NewDefaultUnity();
+            unity = singletonServices_.getUnityDAO().NewDefaultUnity();
             unity.Name = _request.Name;
             unity.Display = _request.Display;
 
-            await unityDAO_.CreateAsync(unity);
+            await singletonServices_.getUnityDAO().CreateAsync(unity);
             return new UuidResponse
             {
                 Status = new LIB.Proto.Status(),
@@ -55,7 +44,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
         {
             ArgumentChecker.CheckRequiredString(_request.Uuid, "Uuid");
 
-            var unity = await unityDAO_.GetAsync(_request.Uuid);
+            var unity = await singletonServices_.getUnityDAO().GetAsync(_request.Uuid);
             if (null == unity)
             {
                 return new UnityRetrieveResponse
@@ -67,7 +56,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             return new UnityRetrieveResponse
             {
                 Status = new LIB.Proto.Status(),
-                Unity = unityDAO_.ToProtoEntity(unity),
+                Unity = singletonServices_.getUnityDAO().ToProtoEntity(unity),
             };
         }
 
@@ -80,11 +69,11 @@ namespace XTC.FMP.MOD.Vendor.App.Service
                 Status = new LIB.Proto.Status(),
             };
 
-            response.Total = await unityDAO_.CountAsync();
-            var unityS = await unityDAO_.ListAsync((int)_request.Offset, (int)_request.Count);
+            response.Total = await singletonServices_.getUnityDAO().CountAsync();
+            var unityS = await singletonServices_.getUnityDAO().ListAsync((int)_request.Offset, (int)_request.Count);
             foreach (var unity in unityS)
             {
-                response.UnityS.Add(unityDAO_.ToProtoEntity(unity));
+                response.UnityS.Add(singletonServices_.getUnityDAO().ToProtoEntity(unity));
             }
             return response;
         }
@@ -93,7 +82,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
         {
             ArgumentChecker.CheckRequiredString(_request.Uuid, "Uuid");
 
-            await unityDAO_.RemoveAsync(_request.Uuid);
+            await singletonServices_.getUnityDAO().RemoveAsync(_request.Uuid);
             return new UuidResponse
             {
                 Status = new LIB.Proto.Status(),
@@ -105,7 +94,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
         {
             ArgumentChecker.CheckRequiredString(_request.Uuid, "Uuid");
 
-            var unity = await unityDAO_.GetAsync(_request.Uuid);
+            var unity = await singletonServices_.getUnityDAO().GetAsync(_request.Uuid);
             if (null == unity)
             {
                 return new UuidResponse
@@ -127,7 +116,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             unity.Application = _request.Application;
             unity.DependencyConfig = _request.DependencyConfig;
             unity.BootloaderConfig = _request.BootloaderConfig;
-            unity.UpgradeConfig = _request.UpgradeConfig;
+            unity.UpdateConfig = _request.UpdateConfig;
             unity.ModuleConfigS.Clear();
             foreach(var pair in _request.ModuleConfigs)
                 unity.ModuleConfigS[pair.Key] = pair.Value;
@@ -135,12 +124,12 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             foreach(var pair in _request.ModuleCatalogs)
                 unity.ModuleCatalogS[pair.Key] = pair.Value;
 
-            await unityDAO_.UpdateAsync(_request.Uuid, unity);
+            await singletonServices_.getUnityDAO().UpdateAsync(_request.Uuid, unity);
 
             // 保存到存储中
             string filepath = string.Format("unity/{0}.json", unity.Uuid.ToString());
             byte[] bytesBlazor = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(unity));
-            await minioClient_.PutObject(filepath, new MemoryStream(bytesBlazor));
+            await singletonServices_.getMinIOClient().PutObject(filepath, new MemoryStream(bytesBlazor));
 
             return new UuidResponse
             {
@@ -163,11 +152,11 @@ namespace XTC.FMP.MOD.Vendor.App.Service
                 return response;
             }
 
-            var result = await unityDAO_.SearchAsync((int)_request.Offset, (int)_request.Count, _request.Name, _request.Display);
+            var result = await singletonServices_.getUnityDAO().SearchAsync((int)_request.Offset, (int)_request.Count, _request.Name, _request.Display);
             response.Total = result.Key;
             foreach (var unity in result.Value)
             {
-                response.UnityS.Add(unityDAO_.ToProtoEntity(unity));
+                response.UnityS.Add(singletonServices_.getUnityDAO().ToProtoEntity(unity));
             }
             return response;
         }

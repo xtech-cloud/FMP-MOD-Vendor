@@ -24,7 +24,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
         public string Application { get; set; } = "";
         public string DependencyConfig { get; set; } = "";
         public string BootloaderConfig { get; set; } = "";
-        public string UpgradeConfig { get; set; } = "";
+        public string UpdateConfig { get; set; } = "";
         public Dictionary<string, string> ModuleConfigS { get; set; } = new Dictionary<string, string>();
         public Dictionary<string, string> ModuleCatalogS { get; set; } = new Dictionary<string, string>();
     }

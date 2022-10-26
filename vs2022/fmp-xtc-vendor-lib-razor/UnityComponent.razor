@@ -193,12 +193,12 @@
 					</Select>
 				</FormItem>
 				<FormItem Label="更新策略">
-					<Select @bind-Value="@context._upgradeConfig.schema.body.update.strategy"
-							TItem="UpgradeStrategy"
+					<Select @bind-Value="@context._updateConfig.schema.body.frameworkUpdate.strategy"
+							TItem="UpdateStrategy"
 							TItemValue="string"
-							DataSource="@upgradeStrategyS"
-							ValueName="@nameof(UpgradeStrategy.Value)"
-							LabelName="@nameof(UpgradeStrategy.Label)"
+							DataSource="@updateStrategyS"
+							ValueName="@nameof(UpdateStrategy.Value)"
+							LabelName="@nameof(UpdateStrategy.Label)"
 							Style="width:120px">
 					</Select>
 				</FormItem>
@@ -213,6 +213,16 @@
 				</FormItem>
 			</TabPane>
 			<TabPane Tab="资源配置" Key="4">
+				<FormItem Label="更新策略">
+					<Select @bind-Value="@context._updateConfig.schema.body.assetSyndication.strategy"
+							TItem="UpdateStrategy"
+							TItemValue="string"
+							DataSource="@updateStrategyS"
+							ValueName="@nameof(UpdateStrategy.Value)"
+							LabelName="@nameof(UpdateStrategy.Label)"
+							Style="width:120px">
+					</Select>
+				</FormItem>
 				<Tabs>
 					@foreach (var pair in context._rawModuleCatalogS)
 					{
@@ -274,15 +284,15 @@
 		new Environment{Value="develop", Label="开发"},
 	};
 
-	class UpgradeStrategy
+	class UpdateStrategy
 	{
 		public string Value { get; set; } = "";
 		public string Label { get; set; } = "";
 	}
-	List<UpgradeStrategy> upgradeStrategyS = new List<UpgradeStrategy>{
-		new UpgradeStrategy{Value="skip", Label="跳过"},
-		new UpgradeStrategy{Value="auto", Label="自动"},
-		new UpgradeStrategy{Value="manaul", Label="手动"},
+	List<UpdateStrategy> updateStrategyS = new List<UpdateStrategy>{
+		new UpdateStrategy{Value="skip", Label="跳过"},
+		new UpdateStrategy{Value="auto", Label="自动"},
+		new UpdateStrategy{Value="manaul", Label="手动"},
 	};
 }
 

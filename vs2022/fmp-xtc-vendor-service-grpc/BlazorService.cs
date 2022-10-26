@@ -7,29 +7,18 @@ namespace XTC.FMP.MOD.Vendor.App.Service
 {
     public class BlazorService : BlazorServiceBase
     {
-        private readonly MinIOClient minioClient_;
-        // 解开以下代码的注释，可支持数据库操作
-        private readonly BlazorDAO blazorDAO_;
+        private readonly SingletonServices singletonServices_;
 
-        /// <summary>
-        /// 构造函数
-        /// </summary>
-        /// <remarks>
-        /// 支持多个参数，均为自动注入，注入点位于MyProgram.PreBuild
-        /// </remarks>
-        /// <param name="_blazorDAO">自动注入的数据操作对象</param>
-        /// <param name="_minioClient">自动注入的MinIO客户端</param>
-        public BlazorService(BlazorDAO _blazorDAO, MinIOClient _minioClient)
+        public BlazorService(SingletonServices _singletonServices)
         {
-            blazorDAO_ = _blazorDAO;
-            minioClient_ = _minioClient;
+            singletonServices_ = _singletonServices;
         }
 
         protected override async Task<UuidResponse> safeCreate(BlazorCreateRequest _request, ServerCallContext _context)
         {
             ArgumentChecker.CheckRequiredString(_request.Name, "Name");
 
-            var blazor = await blazorDAO_.GetByNameAsync(_request.Name);
+            var blazor = await singletonServices_.getBlazorDAO().GetByNameAsync(_request.Name);
             if (null != blazor)
             {
                 return new UuidResponse
@@ -38,11 +27,11 @@ namespace XTC.FMP.MOD.Vendor.App.Service
                 };
             }
 
-            blazor = blazorDAO_.NewDefaultBlazor();
+            blazor = singletonServices_.getBlazorDAO().NewDefaultBlazor();
             blazor.Name = _request.Name;
             blazor.Display = _request.Display;
 
-            await blazorDAO_.CreateAsync(blazor);
+            await singletonServices_.getBlazorDAO().CreateAsync(blazor);
             return new UuidResponse
             {
                 Status = new LIB.Proto.Status(),
@@ -54,7 +43,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
         {
             ArgumentChecker.CheckRequiredString(_request.Uuid, "Uuid");
 
-            var blazor = await blazorDAO_.GetAsync(_request.Uuid);
+            var blazor = await singletonServices_.getBlazorDAO().GetAsync(_request.Uuid);
             if (null == blazor)
             {
                 return new BlazorRetrieveResponse
@@ -66,7 +55,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             return new BlazorRetrieveResponse
             {
                 Status = new LIB.Proto.Status(),
-                Blazor = blazorDAO_.ToProtoEntity(blazor),
+                Blazor = singletonServices_.getBlazorDAO().ToProtoEntity(blazor),
             };
         }
 
@@ -79,11 +68,11 @@ namespace XTC.FMP.MOD.Vendor.App.Service
                 Status = new LIB.Proto.Status(),
             };
 
-            response.Total = await blazorDAO_.CountAsync();
-            var blazorS = await blazorDAO_.ListAsync((int)_request.Offset, (int)_request.Count);
+            response.Total = await singletonServices_.getBlazorDAO().CountAsync();
+            var blazorS = await singletonServices_.getBlazorDAO().ListAsync((int)_request.Offset, (int)_request.Count);
             foreach (var blazor in blazorS)
             {
-                response.BlazorS.Add(blazorDAO_.ToProtoEntity(blazor));
+                response.BlazorS.Add(singletonServices_.getBlazorDAO().ToProtoEntity(blazor));
             }
             return response;
         }
@@ -92,7 +81,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
         {
             ArgumentChecker.CheckRequiredString(_request.Uuid, "Uuid");
 
-            await blazorDAO_.RemoveAsync(_request.Uuid);
+            await singletonServices_.getBlazorDAO().RemoveAsync(_request.Uuid);
             return new UuidResponse
             {
                 Status = new LIB.Proto.Status(),
@@ -104,7 +93,7 @@ namespace XTC.FMP.MOD.Vendor.App.Service
         {
             ArgumentChecker.CheckRequiredString(_request.Uuid, "Uuid");
 
-            var blazor = await blazorDAO_.GetAsync(_request.Uuid);
+            var blazor = await singletonServices_.getBlazorDAO().GetAsync(_request.Uuid);
             if (null == blazor)
             {
                 return new UuidResponse
@@ -121,12 +110,12 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             blazor.MenuConfig = _request.MenuConfig;
             blazor.ModulesConfig = _request.ModulesConfig;
 
-            await blazorDAO_.UpdateAsync(_request.Uuid, blazor);
+            await singletonServices_.getBlazorDAO().UpdateAsync(_request.Uuid, blazor);
 
             // 保存到存储中
             string filepath = string.Format("blazor/{0}.json", blazor.Uuid.ToString());
             byte[] bytesBlazor = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(blazor));
-            await minioClient_.PutObject(filepath, new MemoryStream(bytesBlazor));
+            await singletonServices_.getMinIOClient().PutObject(filepath, new MemoryStream(bytesBlazor));
 
             return new UuidResponse
             {
@@ -149,11 +138,11 @@ namespace XTC.FMP.MOD.Vendor.App.Service
                 return response;
             }
 
-            var result = await blazorDAO_.SearchAsync((int)_request.Offset, (int)_request.Count, _request.Name, _request.Display);
+            var result = await singletonServices_.getBlazorDAO().SearchAsync((int)_request.Offset, (int)_request.Count, _request.Name, _request.Display);
             response.Total = result.Key;
             foreach (var blazor in result.Value)
             {
-                response.BlazorS.Add(blazorDAO_.ToProtoEntity(blazor));
+                response.BlazorS.Add(singletonServices_.getBlazorDAO().ToProtoEntity(blazor));
             }
             return response;
         }

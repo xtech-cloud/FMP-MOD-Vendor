@@ -8,10 +8,10 @@ using MongoDB.Driver;
 
 namespace XTC.FMP.MOD.Vendor.App.Service
 {
-    public class BlazorDAO : DAO<BlazorEntity>
+    public class BlazorDAO : MongoDAO<BlazorEntity>
     {
-        public BlazorDAO(IOptions<DatabaseSettings> _settings)
-        : base(_settings, "Blazor")
+        public BlazorDAO(IMongoDatabase _mongoDatabase)
+        : base(_mongoDatabase, "Blazor")
         {
         }
 

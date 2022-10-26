@@ -64,7 +64,7 @@ message UnityEntity
     float graphics_referenceResolution_match = 26; // 参考分辨率匹配权重，范围[0,1]
     string dependency_config = 50;  // base64编码的依赖配置
     string bootloader_config = 51;  // base64编码的加载配置
-    string upgrade_config = 52;  // base64编码的升级配置
+    string update_config = 52;  // base64编码的更新配置
     map<string, string> module_configs = 53;// base64编码的模块配置
     map<string, string> module_catalogs = 54; // base64编码的模块编目
     string application = 100; // 应用程序
