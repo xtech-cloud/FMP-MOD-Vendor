@@ -20,15 +20,6 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
                 public string values { get; set; } = "";
             }
 
-
-            public class Options
-            {
-                [XmlAttribute("environment")]
-                public string environment { get; set; } = "develop";
-                [XmlAttribute("repository")]
-                public string repository { get; set; } = "";
-            }
-
             public class Reference
             {
                 [XmlAttribute("org")]
@@ -49,8 +40,6 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
 
             public class Body
             {
-                [XmlElement("Options")]
-                public Options options = new Options();
                 [XmlArray("References"), XmlArrayItem("Reference")]
                 public Reference[] references { get; set; } = new Reference[0];
                 [XmlArray("Plugins"), XmlArrayItem("Plugin")]
@@ -116,12 +105,18 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
                 {
                     [XmlAttribute("strategy")]
                     public string strategy { get; set; } = "skip";
+                    [XmlAttribute("environment")]
+                    public string environment { get; set; } = "develop";
+                    [XmlAttribute("repository")]
+                    public string repository { get; set; } = "";
                 }
 
                 public class AssetSyndication
                 {
                     [XmlAttribute("strategy")]
                     public string strategy { get; set; } = "skip";
+                    [XmlAttribute("storage")]
+                    public string storage { get; set; } = "";
                 }
 
                 public class Body

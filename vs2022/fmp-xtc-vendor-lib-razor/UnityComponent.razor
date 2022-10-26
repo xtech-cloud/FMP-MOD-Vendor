@@ -183,7 +183,7 @@
 			</TabPane>
 			<TabPane Tab="ÒÀÀµÉèÖÃ" Key="3">
 				<FormItem Label="»·¾³">
-					<Select @bind-Value="@context._dependencyConfig.schema.body.options.environment"
+					<Select @bind-Value="@context._updateConfig.schema.body.frameworkUpdate.environment"
 							TItem="Environment"
 							TItemValue="string"
 							DataSource="@environmentS"
@@ -203,7 +203,7 @@
 					</Select>
 				</FormItem>
 				<FormItem Label="²Ö¿âµØÖ·">
-					<Input @bind-Value="@context._dependencyConfig.schema.body.options.repository" />
+					<Input @bind-Value="@context._updateConfig.schema.body.frameworkUpdate.repository" />
 				</FormItem>
 				<FormItem Label="Ä£¿é">
 					<TextArea @bind-Value="@context._dependencyReferencesInput" MinRows="1" DefaultToEmptyString=true AutoSize=true OnBlur="onDependencyBlur" />
@@ -222,6 +222,9 @@
 							LabelName="@nameof(UpdateStrategy.Label)"
 							Style="width:120px">
 					</Select>
+				</FormItem>
+				<FormItem Label="´æ´¢µØÖ·">
+					<Input @bind-Value="@context._updateConfig.schema.body.assetSyndication.storage" />
 				</FormItem>
 				<Tabs>
 					@foreach (var pair in context._rawModuleCatalogS)
