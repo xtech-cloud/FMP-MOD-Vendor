@@ -174,6 +174,28 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
 
 
 
+    public class FileSubEntityDTO : IDTO
+    {
+        public FileSubEntityDTO(FileSubEntity _value)
+        {
+            Value = _value;    
+        }
+        public readonly FileSubEntity Value;
+    }
+
+
+
+    public class FileSubEntitySDTO : IDTO
+    {
+        public FileSubEntitySDTO(FileSubEntityS _value)
+        {
+            Value = _value;    
+        }
+        public readonly FileSubEntityS Value;
+    }
+
+
+
     public class UnityEntityDTO : IDTO
     {
         public UnityEntityDTO(UnityEntity _value)
@@ -192,6 +214,50 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             Value = _value;    
         }
         public readonly BlazorEntity Value;
+    }
+
+
+
+    public class PrepareUploadRequestDTO : IDTO
+    {
+        public PrepareUploadRequestDTO(PrepareUploadRequest _value)
+        {
+            Value = _value;    
+        }
+        public readonly PrepareUploadRequest Value;
+    }
+
+
+
+    public class PrepareUploadResponseDTO : IDTO
+    {
+        public PrepareUploadResponseDTO(PrepareUploadResponse _value)
+        {
+            Value = _value;    
+        }
+        public readonly PrepareUploadResponse Value;
+    }
+
+
+
+    public class FlushUploadRequestDTO : IDTO
+    {
+        public FlushUploadRequestDTO(FlushUploadRequest _value)
+        {
+            Value = _value;    
+        }
+        public readonly FlushUploadRequest Value;
+    }
+
+
+
+    public class FlushUploadResponseDTO : IDTO
+    {
+        public FlushUploadResponseDTO(FlushUploadResponse _value)
+        {
+            Value = _value;    
+        }
+        public readonly FlushUploadResponse Value;
     }
 
 

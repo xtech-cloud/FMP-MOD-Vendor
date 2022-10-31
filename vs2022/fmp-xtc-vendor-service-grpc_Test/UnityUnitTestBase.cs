@@ -34,4 +34,10 @@ public abstract class UnityUnitTestBase : IClassFixture<TestFixture>
     [Fact]
     public abstract Task SearchTest();
 
+    [Fact]
+    public abstract Task PrepareUploadThemeTest();
+
+    [Fact]
+    public abstract Task FlushUploadThemeTest();
+
 }

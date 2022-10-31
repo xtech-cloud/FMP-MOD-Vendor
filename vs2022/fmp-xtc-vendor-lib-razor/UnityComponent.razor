@@ -130,7 +130,7 @@
 	   ConfirmLoading="@updateLoading"
 	   OnOk="@onUpdateModalOk"
 	   OnCancel="@onUpdateModalCancel"
-	   Width="640">
+	   Width="1024">
 	<Form Model="@updateModel"
 		  LabelColSpan="8"
 		  WrapperColSpan="16"
@@ -212,7 +212,12 @@
 					<TextArea @bind-Value="@context._dependencyPluginsInput" MinRows="1" />
 				</FormItem>
 			</TabPane>
-			<TabPane Tab="资源配置" Key="4">
+			<TabPane Tab="引导设置" Key="4">
+				<FormItem Label="步骤">
+					<TextArea @bind-Value="@context._bootloaderStepsInput" MinRows="1" />
+				</FormItem>
+			</TabPane>
+			<TabPane Tab="资源配置" Key="5">
 				<FormItem Label="更新策略">
 					<Select @bind-Value="@context._updateConfig.schema.body.assetSyndication.strategy"
 							TItem="UpdateStrategy"
@@ -235,7 +240,7 @@
 					}
 				</Tabs>
 			</TabPane>
-			<TabPane Tab="模块配置" Key="5">
+			<TabPane Tab="模块配置" Key="6">
 				<Tabs>
 					@foreach (var pair in context._rawModuleConfigS)
 					{
@@ -245,10 +250,39 @@
 					}
 				</Tabs>
 			</TabPane>
-			<TabPane Tab="引导设置" Key="6">
-				<FormItem Label="步骤">
-					<TextArea @bind-Value="@context._bootloaderStepsInput" MinRows="1" />
-				</FormItem>
+			<TabPane Tab="主题配置" Key="7">
+				<Tabs ActiveKeyChanged="@onThemeActiveKeyChanged">
+					@foreach (var pair in context.Entity.ModuleThemes)
+					{
+						<TabPane Key="@pair.Key" Tab="@pair.Key">
+							<InputFile id="content_fileInput" OnChange="@onUploadThemeFilesClick" hidden multiple />
+							<Upload>
+								<label class="ant-btn" for="content_fileInput">
+									<Icon Type="upload" />
+									上传
+								</label>
+							</Upload>
+							@foreach (var file in uploadThemeFiles_)
+							{
+								@if (file.percentage == 100)
+								{
+									<Progress Percent="100" ShowInfo="false" Status="@ProgressStatus.Success"></Progress>
+								}
+								else
+								{
+									<Progress Percent="@file.percentage" ShowInfo="false" Status="@ProgressStatus.Active"></Progress>
+								}
+							}
+							<Table DataSource="@pair.Value.EntityS" Context="theme_context">
+								<PropertyColumn Property="c=>c.Url" Title="文件预览">
+									<Image Width="96px" Src="@theme_context.Url" />
+								</PropertyColumn>
+								<PropertyColumn Property="c=>c.Path" Title="文件路径"></PropertyColumn>
+								<PropertyColumn Property="c=>c.Size" Title="文件大小"></PropertyColumn>
+							</Table>
+						</TabPane>
+					}
+				</Tabs>
 			</TabPane>
 		</Tabs>
 	</Form>
@@ -297,5 +331,7 @@
 		new UpdateStrategy{Value="auto", Label="自动"},
 		new UpdateStrategy{Value="manaul", Label="手动"},
 	};
+
+	ListGridType listGrid = new ListGridType { Gutter = 16, Column = 4 };
 }
 

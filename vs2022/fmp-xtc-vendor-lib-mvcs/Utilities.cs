@@ -50,11 +50,26 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             entity.BootloaderConfig = _entity.BootloaderConfig;
             entity.UpdateConfig = _entity.UpdateConfig;
             entity.ModuleCatalogs.Clear();
-            foreach(var pair in _entity.ModuleCatalogs)
+            foreach (var pair in _entity.ModuleCatalogs)
                 entity.ModuleCatalogs[pair.Key] = pair.Value;
             entity.ModuleConfigs.Clear();
-            foreach(var pair in _entity.ModuleConfigs)
+            foreach (var pair in _entity.ModuleConfigs)
                 entity.ModuleConfigs[pair.Key] = pair.Value;
+            entity.ModuleThemes.Clear();
+            foreach (var pair in _entity.ModuleThemes)
+            {
+                entity.ModuleThemes[pair.Key] = new Proto.FileSubEntityS();
+                foreach (var file in pair.Value.EntityS)
+                {
+                    entity.ModuleThemes[pair.Key].EntityS.Add(new Proto.FileSubEntity()
+                    {
+                        Path = file.Path,
+                        Size = file.Size,
+                        Hash = file.Hash,
+                        Url = file.Url,
+                    });
+                }
+            }
             return entity;
         }
 

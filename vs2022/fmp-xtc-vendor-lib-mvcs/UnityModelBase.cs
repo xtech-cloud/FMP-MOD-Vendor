@@ -79,6 +79,24 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             getController()?.UpdateProtoSearch(status_ as UnityModel.UnityStatus, _response, _context);
         }
 
+        /// <summary>
+        /// 更新PrepareUploadTheme的数据
+        /// </summary>
+        /// <param name="_response">PrepareUploadTheme的回复</param>
+        public virtual void UpdateProtoPrepareUploadTheme(PrepareUploadResponse _response, object? _context)
+        {
+            getController()?.UpdateProtoPrepareUploadTheme(status_ as UnityModel.UnityStatus, _response, _context);
+        }
+
+        /// <summary>
+        /// 更新FlushUploadTheme的数据
+        /// </summary>
+        /// <param name="_response">FlushUploadTheme的回复</param>
+        public virtual void UpdateProtoFlushUploadTheme(FlushUploadResponse _response, object? _context)
+        {
+            getController()?.UpdateProtoFlushUploadTheme(status_ as UnityModel.UnityStatus, _response, _context);
+        }
+
 
         /// <summary>
         /// 获取直系控制层

@@ -5,10 +5,14 @@ namespace XTC.FMP.MOD.Vendor.App.Service
     /// </summary>
     public class MinIOSettings
     {
-        /// <summary>
-        /// 外部的访问地址
+         /// <summary>
+        /// 外部访问的SSL
         /// </summary>
-        public string Address { get; set; } = null!;
+        public bool AddressSSL{ get; set; } = false;
+        /// <summary>
+        /// 外部访问的地址
+        /// </summary>
+        public string AddressUrl { get; set; } = null!;
 
         /// <summary>
         /// 连接地址

@@ -19,6 +19,10 @@ service Unity {
     rpc List(UnityListRequest) returns (UnityListResponse) {}
     // 搜索
     rpc Search(UnitySearchRequest) returns (UnityListResponse) {}
+    // 准备上传主题文件
+    rpc PrepareUploadTheme(PrepareUploadRequest) returns (PrepareUploadResponse) {}
+    // 完成上传主题文件
+    rpc FlushUploadTheme(FlushUploadRequest) returns (FlushUploadResponse) {}
 }
 
 // 创建的请求
@@ -45,6 +49,7 @@ message UnityUpdateRequest {
     string update_config = 52;  // base64编码的更新配置
     map<string, string> module_configs = 53; // base64编码的模块配置
     map<string, string> module_catalogs = 54; // base64编码的模块编目
+    map<string, FileSubEntityS> module_themes = 55; // 主题文件列表
     string application = 100; // 应用程序
 }
 
@@ -74,3 +79,4 @@ message UnitySearchRequest {
     string name = 3; // 名称
     string display = 4; // 显示名称
 }
+

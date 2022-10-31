@@ -97,6 +97,30 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             getView()?.RefreshProtoSearch(err, dto, _context);
         }
 
+        /// <summary>
+        /// 更新PrepareUploadTheme的数据
+        /// </summary>
+        /// <param name="_status">直系状态</param>
+        /// <param name="_response">PrepareUploadTheme的回复</param>
+        public virtual void UpdateProtoPrepareUploadTheme(UnityModel.UnityStatus? _status, PrepareUploadResponse _response, object? _context)
+        {
+            Error err = new Error(_response.Status.Code, _response.Status.Message);
+            PrepareUploadResponseDTO? dto = new PrepareUploadResponseDTO(_response);
+            getView()?.RefreshProtoPrepareUploadTheme(err, dto, _context);
+        }
+
+        /// <summary>
+        /// 更新FlushUploadTheme的数据
+        /// </summary>
+        /// <param name="_status">直系状态</param>
+        /// <param name="_response">FlushUploadTheme的回复</param>
+        public virtual void UpdateProtoFlushUploadTheme(UnityModel.UnityStatus? _status, FlushUploadResponse _response, object? _context)
+        {
+            Error err = new Error(_response.Status.Code, _response.Status.Message);
+            FlushUploadResponseDTO? dto = new FlushUploadResponseDTO(_response);
+            getView()?.RefreshProtoFlushUploadTheme(err, dto, _context);
+        }
+
 
         /// <summary>
         /// 获取直系视图层

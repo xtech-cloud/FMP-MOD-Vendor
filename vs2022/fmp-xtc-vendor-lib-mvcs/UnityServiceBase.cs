@@ -236,6 +236,72 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             return Error.OK;
         }
 
+        /// <summary>
+        /// 调用PrepareUploadTheme
+        /// </summary>
+        /// <param name="_request">PrepareUploadTheme的请求</param>
+        /// <returns>错误</returns>
+        public virtual async Task<Error> CallPrepareUploadTheme(PrepareUploadRequest? _request, object? _context)
+        {
+            getLogger()?.Trace("Call PrepareUploadTheme ...");
+            if (null == _request)
+            {
+                return Error.NewNullErr("parameter:_request is null");
+            }
+
+            PrepareUploadResponse? response = null;
+            if (null != mock.CallPrepareUploadThemeDelegate)
+            {
+                getLogger()?.Trace("use mock ...");
+                response = await mock.CallPrepareUploadThemeDelegate(_request);
+            }
+            else
+            {
+                var client = getGrpcClient();
+                if (null == client)
+                {
+                    return await Task.FromResult(Error.NewNullErr("client is null"));
+                }
+                response = await client.PrepareUploadThemeAsync(_request);
+            }
+
+            getModel()?.UpdateProtoPrepareUploadTheme(response, _context);
+            return Error.OK;
+        }
+
+        /// <summary>
+        /// 调用FlushUploadTheme
+        /// </summary>
+        /// <param name="_request">FlushUploadTheme的请求</param>
+        /// <returns>错误</returns>
+        public virtual async Task<Error> CallFlushUploadTheme(FlushUploadRequest? _request, object? _context)
+        {
+            getLogger()?.Trace("Call FlushUploadTheme ...");
+            if (null == _request)
+            {
+                return Error.NewNullErr("parameter:_request is null");
+            }
+
+            FlushUploadResponse? response = null;
+            if (null != mock.CallFlushUploadThemeDelegate)
+            {
+                getLogger()?.Trace("use mock ...");
+                response = await mock.CallFlushUploadThemeDelegate(_request);
+            }
+            else
+            {
+                var client = getGrpcClient();
+                if (null == client)
+                {
+                    return await Task.FromResult(Error.NewNullErr("client is null"));
+                }
+                response = await client.FlushUploadThemeAsync(_request);
+            }
+
+            getModel()?.UpdateProtoFlushUploadTheme(response, _context);
+            return Error.OK;
+        }
+
 
         /// <summary>
         /// 获取直系数据层

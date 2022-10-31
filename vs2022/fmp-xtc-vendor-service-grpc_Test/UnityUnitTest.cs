@@ -62,6 +62,19 @@ public class UnityTest : UnityUnitTestBase
             request.DependencyConfig = "Dependency";
             request.BootloaderConfig = "Bootloader";
             request.UpdateConfig = "Update";
+            request.ModuleCatalogs["a"] = "ModuleA.Catalog";
+            request.ModuleConfigs["b"] = "ModuleB.Config";
+            request.ModuleThemes["c"] = new FileSubEntityS();
+            request.ModuleThemes["c"].EntityS.Add(new FileSubEntity()
+            {
+                Path = "/c",
+                Size = 2323,
+                Hash = "232232323asdsadasddasdsa",
+                Url = "url"
+            }
+            );
+
+
             var response = await fixture_.getServiceUnity().Update(request, fixture_.context);
             Assert.Equal(0, response.Status.Code);
 
@@ -83,6 +96,9 @@ public class UnityTest : UnityUnitTestBase
             Assert.Equal("Dependency", response2.Unity.DependencyConfig);
             Assert.Equal("Bootloader", response2.Unity.BootloaderConfig);
             Assert.Equal("Update", response2.Unity.UpdateConfig);
+            Assert.Equal("ModuleA.Catalog", response2.Unity.ModuleCatalogs["a"]);
+            Assert.Equal("ModuleB.Config", response2.Unity.ModuleConfigs["b"]);
+            Assert.Equal("/c", response2.Unity.ModuleThemes["c"].EntityS[0].Path);
         }
 
         {
@@ -219,4 +235,13 @@ public class UnityTest : UnityUnitTestBase
         }
     }
 
+    public override Task PrepareUploadThemeTest()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Task FlushUploadThemeTest()
+    {
+        throw new NotImplementedException();
+    }
 }

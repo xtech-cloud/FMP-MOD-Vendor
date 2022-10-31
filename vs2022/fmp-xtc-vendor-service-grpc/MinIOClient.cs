@@ -19,9 +19,17 @@ namespace XTC.FMP.MOD.Vendor.App.Service
                 .WithCredentials(settings_.Value.AccessKey, settings_.Value.SecretKey)
                 .Build();
             presignedClient_ = new MinioClient()
-                .WithEndpoint(settings_.Value.Address)
+                .WithEndpoint(settings_.Value.AddressUrl)
                 .WithCredentials(settings_.Value.AccessKey, settings_.Value.SecretKey)
                 .Build();
+            if (_settings.Value.AddressSSL)
+                presignedClient_ = presignedClient_.WithSSL();
+        }
+
+        public string GetAddressUrl(string _path)
+        {
+            string scheme = settings_.Value.AddressSSL ? "https" : "http";
+            return string.Format("{0}://{1}/{2}/{3}", scheme, settings_.Value.AddressUrl, settings_.Value.Bucket, _path);
         }
 
         /// <summary>

@@ -57,6 +57,18 @@ namespace XTC.FMP.MOD.Vendor.LIB.Bridge
         void RefreshSearch(IDTO _dto, object? _context);
 
 
+        /// <summary>
+        /// 刷新PrepareUploadTheme的数据
+        /// </summary>
+        void RefreshPrepareUploadTheme(IDTO _dto, object? _context);
+
+
+        /// <summary>
+        /// 刷新FlushUploadTheme的数据
+        /// </summary>
+        void RefreshFlushUploadTheme(IDTO _dto, object? _context);
+
+
     }
 }
 

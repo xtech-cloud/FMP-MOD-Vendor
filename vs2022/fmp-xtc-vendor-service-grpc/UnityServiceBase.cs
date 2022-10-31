@@ -149,6 +149,50 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             }
         }
 
+        public override async Task<PrepareUploadResponse> PrepareUploadTheme(PrepareUploadRequest _request, ServerCallContext _context)
+        {
+            try
+            {
+                return await safePrepareUploadTheme(_request, _context);
+            }
+            catch (ArgumentRequiredException ex)
+            {
+                return await Task.Run(() => new PrepareUploadResponse
+                {
+                    Status = new LIB.Proto.Status() { Code = -HttpStatusCode.BadRequest.GetHashCode(), Message = ex.Message },
+                });
+            }
+            catch (Exception ex)
+            {
+                return await Task.Run(() => new PrepareUploadResponse
+                {
+                    Status = new LIB.Proto.Status() { Code = -HttpStatusCode.InternalServerError.GetHashCode(), Message = ex.Message },
+                });
+            }
+        }
+
+        public override async Task<FlushUploadResponse> FlushUploadTheme(FlushUploadRequest _request, ServerCallContext _context)
+        {
+            try
+            {
+                return await safeFlushUploadTheme(_request, _context);
+            }
+            catch (ArgumentRequiredException ex)
+            {
+                return await Task.Run(() => new FlushUploadResponse
+                {
+                    Status = new LIB.Proto.Status() { Code = -HttpStatusCode.BadRequest.GetHashCode(), Message = ex.Message },
+                });
+            }
+            catch (Exception ex)
+            {
+                return await Task.Run(() => new FlushUploadResponse
+                {
+                    Status = new LIB.Proto.Status() { Code = -HttpStatusCode.InternalServerError.GetHashCode(), Message = ex.Message },
+                });
+            }
+        }
+
 
 
         protected virtual async Task<UuidResponse> safeCreate(UnityCreateRequest _request, ServerCallContext _context)
@@ -189,6 +233,20 @@ namespace XTC.FMP.MOD.Vendor.App.Service
         protected virtual async Task<UnityListResponse> safeSearch(UnitySearchRequest _request, ServerCallContext _context)
         {
             return await Task.Run(() => new UnityListResponse {
+                    Status = new LIB.Proto.Status() { Code = -1, Message = "Not Implemented" },
+            });
+        }
+
+        protected virtual async Task<PrepareUploadResponse> safePrepareUploadTheme(PrepareUploadRequest _request, ServerCallContext _context)
+        {
+            return await Task.Run(() => new PrepareUploadResponse {
+                    Status = new LIB.Proto.Status() { Code = -1, Message = "Not Implemented" },
+            });
+        }
+
+        protected virtual async Task<FlushUploadResponse> safeFlushUploadTheme(FlushUploadRequest _request, ServerCallContext _context)
+        {
+            return await Task.Run(() => new FlushUploadResponse {
                     Status = new LIB.Proto.Status() { Code = -1, Message = "Not Implemented" },
             });
         }

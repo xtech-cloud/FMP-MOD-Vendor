@@ -121,6 +121,38 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             bridge?.RefreshSearch(_dto, _context);
         }
 
+        /// <summary>
+        /// 刷新PrepareUploadTheme的数据
+        /// </summary>
+        /// <param name="_err">错误</param>
+        /// <param name="_dto">PrepareUploadResponse的数据传输对象</param>
+        public virtual void RefreshProtoPrepareUploadTheme(Error _err, PrepareUploadResponseDTO _dto, object? _context)
+        {
+            var bridge = getFacade()?.getUiBridge() as IUnityUiBridge; 
+            if (!Error.IsOK(_err))
+            {
+                bridge?.Alert(string.Format("errcode_PrepareUploadTheme_{0}", _err.getCode()), _err.getMessage(), _context);
+                return;
+            }
+            bridge?.RefreshPrepareUploadTheme(_dto, _context);
+        }
+
+        /// <summary>
+        /// 刷新FlushUploadTheme的数据
+        /// </summary>
+        /// <param name="_err">错误</param>
+        /// <param name="_dto">FlushUploadResponse的数据传输对象</param>
+        public virtual void RefreshProtoFlushUploadTheme(Error _err, FlushUploadResponseDTO _dto, object? _context)
+        {
+            var bridge = getFacade()?.getUiBridge() as IUnityUiBridge; 
+            if (!Error.IsOK(_err))
+            {
+                bridge?.Alert(string.Format("errcode_FlushUploadTheme_{0}", _err.getCode()), _err.getMessage(), _context);
+                return;
+            }
+            bridge?.RefreshFlushUploadTheme(_dto, _context);
+        }
+
 
         /// <summary>
         /// 获取直系数据层

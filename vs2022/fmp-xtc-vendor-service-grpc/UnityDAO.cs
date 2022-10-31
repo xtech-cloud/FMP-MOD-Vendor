@@ -57,11 +57,26 @@ namespace XTC.FMP.MOD.Vendor.App.Service
             unity.BootloaderConfig = _unity.BootloaderConfig;
             unity.UpdateConfig = _unity.UpdateConfig;
             unity.ModuleCatalogs.Clear();
-            foreach(var pair in _unity.ModuleCatalogS)
+            foreach (var pair in _unity.ModuleCatalogS)
                 unity.ModuleCatalogs[pair.Key] = pair.Value;
             unity.ModuleConfigs.Clear();
-            foreach(var pair in _unity.ModuleConfigS)
+            foreach (var pair in _unity.ModuleConfigS)
                 unity.ModuleConfigs[pair.Key] = pair.Value;
+            unity.ModuleThemes.Clear();
+            foreach (var pair in _unity.ModuleThemeS)
+            {
+                unity.ModuleThemes[pair.Key] = new LIB.Proto.FileSubEntityS();
+                foreach (var file in pair.Value.entityS)
+                {
+                    unity.ModuleThemes[pair.Key].EntityS.Add(new LIB.Proto.FileSubEntity()
+                    {
+                        Path = file.path,
+                        Hash = file.hash,
+                        Size = file.size,
+                        Url = file.url,
+                    });
+                }
+            }
             return unity;
         }
 

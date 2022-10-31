@@ -52,6 +52,18 @@ namespace XTC.FMP.MOD.Vendor.LIB.Bridge
         Task<Error> OnSearchSubmit(IDTO _dto, object? _context);
 
 
+        /// <summary>
+        /// 处理PrepareUploadTheme的提交
+        /// </summary>
+        Task<Error> OnPrepareUploadThemeSubmit(IDTO _dto, object? _context);
+
+
+        /// <summary>
+        /// 处理FlushUploadTheme的提交
+        /// </summary>
+        Task<Error> OnFlushUploadThemeSubmit(IDTO _dto, object? _context);
+
+
     }
 }
 

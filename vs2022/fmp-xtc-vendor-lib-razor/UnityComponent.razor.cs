@@ -11,6 +11,7 @@ using AntDesign.TableModels;
 using Microsoft.JSInterop;
 using System.Text;
 using System.Net;
+using Newtonsoft.Json;
 
 namespace XTC.FMP.MOD.Vendor.LIB.Razor
 {
@@ -128,6 +129,31 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
             {
                 razor_.searchLoading = false;
                 RefreshList(_dto, _context);
+            }
+
+            public void RefreshPrepareUploadTheme(IDTO _dto, object? _context)
+            {
+                var dto = _dto as PrepareUploadResponseDTO;
+                if (null == dto)
+                    return;
+
+                // 使用预签名的地址上传数据
+                Task.Run(async () => await razor_.uploadTheme(dto.Value.Filepath, dto.Value.Url));
+            }
+
+            public void RefreshFlushUploadTheme(IDTO _dto, object? _context)
+            {
+                var dto = _dto as FlushUploadResponseDTO;
+                var file = razor_.uploadThemeFiles_.Find((_item) =>
+                {
+                    return _item.browserFile.Name.Equals(dto.Value.Filepath);
+                });
+                if (null == file)
+                    return;
+                file.percentage = 100;
+                razor_.uploadThemeFiles_.Remove(file);
+                razor_.StateHasChanged();
+                //Task.Run(async () => await razor_.fetchAttachments());
             }
 
             private UnityComponent razor_;
@@ -268,6 +294,8 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
 
             public List<StringPair> _rawModuleCatalogS = new List<StringPair>();
             public List<StringPair> _rawModuleConfigS = new List<StringPair>();
+
+            public string _activeThemeKey { get; set; } = "";
         }
 
         private bool visibleUpdateModal = false;
@@ -442,10 +470,28 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
             req.DependencyConfig = dependencyConfigBase64;
             req.BootloaderConfig = bootloaderConfigBase64;
             req.UpdateConfig = updateConfigBase64;
-            foreach(var pair in model._rawModuleCatalogS)
+            foreach (var pair in model._rawModuleCatalogS)
+            {
                 req.ModuleCatalogs.Add(pair.Key, Convert.ToBase64String(Encoding.UTF8.GetBytes(pair.Value)));
-            foreach(var pair in model._rawModuleConfigS)
+            }
+            foreach (var pair in model._rawModuleConfigS)
+            {
                 req.ModuleConfigs.Add(pair.Key, Convert.ToBase64String(Encoding.UTF8.GetBytes(pair.Value)));
+            }
+            foreach (var pair in model.Entity.ModuleThemes)
+            {
+                req.ModuleThemes[pair.Key] = new FileSubEntityS();
+                foreach (var file in pair.Value.EntityS)
+                {
+                    req.ModuleThemes[pair.Key].EntityS.Add(new FileSubEntity()
+                    {
+                        Hash = file.Hash,
+                        Size = file.Size,
+                        Path = file.Path,
+                        Url = file.Url,
+                    });
+                }
+            }
             req.Application = model.Entity.Application;
             var dto = new UnityUpdateRequestDTO(req);
             Error err = await bridge.OnUpdateSubmit(dto, null);
@@ -455,6 +501,7 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
             }
         }
         #endregion
+
 
         #region Table
         private class TableModel
@@ -555,10 +602,17 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
 
         private void onDependencyBlur()
         {
-            List<UpdateModel.StringPair> catalogS = updateModel._rawModuleCatalogS;
-            List<UpdateModel.StringPair> configS = updateModel._rawModuleConfigS;
+            List<UpdateModel.StringPair> catalogS = new();
+            List<UpdateModel.StringPair> configS = new();
+            Dictionary<string, FileSubEntityS> themeS = new();
+            catalogS.AddRange(updateModel._rawModuleCatalogS);
+            configS.AddRange(updateModel._rawModuleConfigS);
             updateModel._rawModuleCatalogS.Clear();
             updateModel._rawModuleConfigS.Clear();
+            foreach (var pair in updateModel.Entity.ModuleThemes)
+            {
+                themeS.Add(pair.Key, pair.Value);
+            }
             foreach (var referenceInput in updateModel._dependencyReferencesInput.Split("\n"))
             {
                 var reference = Utilities.DependencyReferenceFromString(referenceInput);
@@ -566,6 +620,7 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
                     continue;
                 string module = string.Format("{0}_{1}", reference.org, reference.module);
 
+                // 更新大纲
                 var catalog = catalogS.Find((_item) =>
                 {
                     return _item.Key.Equals(module);
@@ -577,6 +632,7 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
                 catalogPair.Value = null == catalog ? "" : catalog.Value;
                 updateModel._rawModuleCatalogS.Add(catalogPair);
 
+                // 更新配置
                 var config = configS.Find((_item) =>
                 {
                     return _item.Key.Equals(module);
@@ -585,9 +641,133 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
                 {
                     Key = module,
                 };
-                configPair.Value = null == config ? "" : configPair.Value;
+                configPair.Value = null == config ? "" : config.Value;
                 updateModel._rawModuleConfigS.Add(configPair);
+
+                // 更新主题
+                FileSubEntityS? files;
+                if (!themeS.TryGetValue(module, out files))
+                {
+                    files = new FileSubEntityS();
+                }
+                updateModel.Entity.ModuleThemes[module] = files;
+
             }
         }
+
+        #region UploadTheme
+        public class UploadThemeFile
+        {
+            public UploadThemeFile(IBrowserFile _file)
+            {
+                browserFile = _file;
+            }
+            public string vendorUuid = "";
+            public string moduleKey = "";
+            public IBrowserFile browserFile { get; private set; }
+            public string uploadUrl = "";
+            public int percentage = 0;
+        }
+
+        private List<UploadThemeFile> uploadThemeFiles_ = new List<UploadThemeFile>();
+
+        /// <summary>
+        /// 对需要上传的主题文件进行预签名
+        /// </summary>
+        /// <remarks>
+        /// 将文件名提交给服务端，获取签名的上传地址，获取到上传地址后再上传原文件
+        /// </remarks>
+        /// <param name="_e"></param>
+        /// <returns></returns>
+        private async Task onUploadThemeFilesClick(InputFileChangeEventArgs _e)
+        {
+            uploadThemeFiles_.Clear();
+            if (null == updateModel)
+                return;
+            var bridge = (getFacade()?.getViewBridge() as IUnityViewBridge);
+            if (null == bridge)
+            {
+                logger_?.Error("bridge is null");
+                return;
+            }
+
+            int maxAllowedFiles = 100;
+            foreach (var file in _e.GetMultipleFiles(maxAllowedFiles))
+            {
+                var req = new PrepareUploadRequest();
+                req.Uuid = updateModel.Entity.Uuid ?? "";
+                req.Filepath = string.Format("{0}", file.Name);
+                req.Module = updateModel._activeThemeKey;
+                var dto = new PrepareUploadRequestDTO(req);
+                Error err = await bridge.OnPrepareUploadThemeSubmit(dto, null);
+                if (!Error.IsOK(err))
+                {
+                    logger_?.Error(err.getMessage());
+                }
+                var uploadFile = new UploadThemeFile(file);
+                uploadFile.vendorUuid = updateModel.Entity.Uuid ?? "";
+                uploadFile.moduleKey = updateModel._activeThemeKey;
+                uploadThemeFiles_.Add(uploadFile);
+            }
+        }
+
+        /// <summary>
+        /// 上传文件数据
+        /// </summary>
+        /// <param name="_filepath"></param>
+        /// <param name="_url"></param>
+        /// <returns></returns>
+        private async Task uploadTheme(string _filepath, string _url)
+        {
+            var uploadfile = uploadThemeFiles_.Find((_item) =>
+            {
+                return _item.browserFile.Name.Equals(_filepath);
+            });
+            if (null == uploadfile)
+                return;
+            uploadfile.uploadUrl = _url;
+
+            var httpClient = new HttpClient();
+            bool success = false;
+            try
+            {
+                long maxFileSize = long.MaxValue;
+                var fileContent = new StreamContent(uploadfile.browserFile.OpenReadStream(maxFileSize));
+                var response = await httpClient.PutAsync(new Uri(uploadfile.uploadUrl), fileContent);
+                success = response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                logger_?.Error(ex.Message);
+            }
+
+            if (!success)
+                return;
+
+            var bridge = (getFacade()?.getViewBridge() as IUnityViewBridge);
+            if (null == bridge)
+            {
+                logger_?.Error("bridge is null");
+                return;
+            }
+            var req = new FlushUploadRequest();
+            req.Uuid = uploadfile.vendorUuid;
+            req.Filepath = uploadfile.browserFile.Name;
+            req.Module = uploadfile.moduleKey;
+            var dto = new FlushUploadRequestDTO(req);
+            Error err = await bridge.OnFlushUploadThemeSubmit(dto, null);
+            if (!Error.IsOK(err))
+            {
+                logger_?.Error(err.getMessage());
+            }
+        }
+
+        private void onThemeActiveKeyChanged(string _e)
+        {
+            updateModel._activeThemeKey = _e;
+        }
+
+
+        #endregion
     }
 }

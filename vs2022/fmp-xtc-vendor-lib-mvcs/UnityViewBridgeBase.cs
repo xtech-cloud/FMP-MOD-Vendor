@@ -113,6 +113,36 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
             return await service.CallSearch(dto?.Value, _context);
         }
 
+        /// <summary>
+        /// 处理PrepareUploadTheme的提交
+        /// </summary>
+        /// <param name="_dto">PrepareUploadRequest的数据传输对象</param>
+        /// <returns>错误</returns>
+        public virtual async Task<Error> OnPrepareUploadThemeSubmit(IDTO _dto, object? _context)
+        {
+            PrepareUploadRequestDTO? dto = _dto as PrepareUploadRequestDTO;
+            if(null == service)
+            {
+                return Error.NewNullErr("service is null");
+            }
+            return await service.CallPrepareUploadTheme(dto?.Value, _context);
+        }
+
+        /// <summary>
+        /// 处理FlushUploadTheme的提交
+        /// </summary>
+        /// <param name="_dto">FlushUploadRequest的数据传输对象</param>
+        /// <returns>错误</returns>
+        public virtual async Task<Error> OnFlushUploadThemeSubmit(IDTO _dto, object? _context)
+        {
+            FlushUploadRequestDTO? dto = _dto as FlushUploadRequestDTO;
+            if(null == service)
+            {
+                return Error.NewNullErr("service is null");
+            }
+            return await service.CallFlushUploadTheme(dto?.Value, _context);
+        }
+
 
     }
 }

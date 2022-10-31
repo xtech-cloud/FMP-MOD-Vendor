@@ -48,6 +48,21 @@ message UuidResponse
     string uuid = 2;  // 唯一识别码
 }
 
+
+// 文件子实体
+message FileSubEntity
+{
+    string path = 1;  // 路径
+    string hash = 2;  // 哈希值
+    uint64 size = 3; // 大小
+    string url = 4;  // 外部访问地址
+}
+
+message FileSubEntityS
+{
+    repeated FileSubEntity entityS = 1; // 文件实体列表
+}
+
 // Unity实体
 message UnityEntity
 {
@@ -67,6 +82,7 @@ message UnityEntity
     string update_config = 52;  // base64编码的更新配置
     map<string, string> module_configs = 53;// base64编码的模块配置
     map<string, string> module_catalogs = 54; // base64编码的模块编目
+    map<string, FileSubEntityS> module_themes = 55; // 主题文件列表
     string application = 100; // 应用程序
 }
 
@@ -81,4 +97,37 @@ message BlazorEntity
     string menu_title = 21;  // 菜单标题名
     string menu_config = 22;  // base64编码的菜单配置
     string modules_config = 31;  // base64编码的模块配置
+}
+
+// 准备上传的请求
+message PrepareUploadRequest
+{
+    string uuid = 1;  // unity的uuid
+    string filepath = 2;  // 文件路径
+    string module = 3;  // 模块的key
+}
+
+// 准备上传的回复
+message PrepareUploadResponse
+{
+    Status status = 1;  // 状态
+    string filepath = 2;  // 文件路径
+    string url  = 3;  // 上传的地址
+}
+
+// 完成上传的请求
+message FlushUploadRequest
+{
+    string uuid = 1;  // bundle或content的uuid
+    string filepath = 2;  // 文件路径
+    string module = 3;  // 模块的key
+}
+
+// 完成上传的回复
+message FlushUploadResponse {
+    Status status = 1;  // 状态
+    string filepath = 2;  // 文件路径
+    string hash = 3;  // 文件哈希值
+    uint64 size = 4;  // 文件大小
+    string url  = 5;  // 访问地址
 }

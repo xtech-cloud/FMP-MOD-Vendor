@@ -27,5 +27,9 @@ namespace XTC.FMP.MOD.Vendor.LIB.MVCS
 
         public System.Func<UnitySearchRequest, Task<UnityListResponse>>? CallSearchDelegate { get; set; } = null;
 
+        public System.Func<PrepareUploadRequest, Task<PrepareUploadResponse>>? CallPrepareUploadThemeDelegate { get; set; } = null;
+
+        public System.Func<FlushUploadRequest, Task<FlushUploadResponse>>? CallFlushUploadThemeDelegate { get; set; } = null;
+
     }
 }
