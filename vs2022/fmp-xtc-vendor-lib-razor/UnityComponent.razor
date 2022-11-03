@@ -43,6 +43,7 @@
 		}
 	</div>
 	<Table TItem="TableModel" DataSource="@tableModel" Total="@tableTotal" PageIndex="tablePageIndex" PageSize="tablePageSize" OnPageIndexChange="onPageIndexChanged">
+		<PropertyColumn Title="UUID" Property="c=>c.Entity.Uuid"></PropertyColumn>
 		<PropertyColumn Title="名称" Property="c=>c.Entity.Name"></PropertyColumn>
 		<PropertyColumn Title="备注" Property="c=>c.Entity.Display"></PropertyColumn>
 		<PropertyColumn Title="锁定帧数" Property="c=>c.Entity.GraphicsFps"></PropertyColumn>
