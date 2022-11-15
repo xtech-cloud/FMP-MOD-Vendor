@@ -90,6 +90,9 @@
 				<SpaceItem>
 					<Button Size="small" Type="@ButtonType.Primary" OnClick="()=>onRunClick(context.Entity?.Uuid)">ткпп</Button>
 				</SpaceItem>
+				<SpaceItem>
+					<Button Size="small" OnClick="()=>onDownloadClick(context.Entity?.Uuid)">обть</Button>
+				</SpaceItem>
 				@if (permissionS_.ContainsKey(Permissions.UnityDelete))
 				{
 					<SpaceItem>

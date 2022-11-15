@@ -600,6 +600,15 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
             }
         }
 
+        private async Task onDownloadClick(string? _uuid)
+        {
+            if (null != jsRuntime_)
+            {
+                string uri = string.Format("http://minio.xtech.cloud/fmp.vendor/unity/{0}.json", _uuid);
+                await jsRuntime_.InvokeAsync<object>("open", uri, "_blank");
+            }
+        }
+
         private void onDependencyBlur()
         {
             List<UpdateModel.StringPair> catalogS = new();
