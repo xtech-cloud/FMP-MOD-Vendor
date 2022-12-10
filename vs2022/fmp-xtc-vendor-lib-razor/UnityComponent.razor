@@ -43,36 +43,53 @@
 		}
 	</div>
 	<Table TItem="TableModel" DataSource="@tableModel" Total="@tableTotal" PageIndex="tablePageIndex" PageSize="tablePageSize" OnPageIndexChange="onPageIndexChanged">
-		<PropertyColumn Title="UUID" Property="c=>c.Entity.Uuid"></PropertyColumn>
 		<PropertyColumn Title="名称" Property="c=>c.Entity.Name"></PropertyColumn>
 		<PropertyColumn Title="备注" Property="c=>c.Entity.Display"></PropertyColumn>
-		<PropertyColumn Title="锁定帧数" Property="c=>c.Entity.GraphicsFps"></PropertyColumn>
-		<PropertyColumn Title="画面质量" Property="c=>qualityS[c.Entity.GraphicsQuality].Label"></PropertyColumn>
 		<PropertyColumn Title="运行分辨率" Property="c=>c.Entity.GraphicsPixelResolution"></PropertyColumn>
-		<PropertyColumn Title="UI设计分辨率" Property="c=>c._GraphicsReferenceResolution"></PropertyColumn>
-		<PropertyColumn Title="适配权重" Property="c=>c.Entity.GraphicsReferenceResolutionMatch"></PropertyColumn>
-		<Column Title="皮肤" TData="string">
-			@if (!string.IsNullOrEmpty(context.Entity.SkinSplashBackground))
+		<Column Title="环境" TData="string">
+			@if (context._updateConfig.schema.body.frameworkUpdate.environment == "develop")
 			{
-				<Tag Color="geekblue">过场界面背景图</Tag>
+				<Tag Color="magenta">开发</Tag>
 			}
-			@if (!string.IsNullOrEmpty(context.Entity.SkinSplashSlogan))
+			else if (context._updateConfig.schema.body.frameworkUpdate.environment == "product")
 			{
-				<Tag Color="geekblue">过场界面标语图</Tag>
+				<Tag Color="green">生产</Tag>
 			}
 		</Column>
-		<PropertyColumn Title="模块" Property="c=>c._dependencyConfig.schema.body.references">
-			@foreach (var reference in context._dependencyConfig.schema.body.references)
+		<Column Title="框架更新策略" TData="string">
+			@if (context._updateConfig.schema.body.frameworkUpdate.strategy == "skip")
 			{
-				<Tag Color="geekblue">@reference.org@("_")@reference.module@("@")@reference.version</Tag>
+				<Tag Color="green">跳过</Tag>
 			}
-		</PropertyColumn>
-		<PropertyColumn Title="插件" Property="c=>c._dependencyConfig.schema.body.plugins">
-			@foreach (var plugin in context._dependencyConfig.schema.body.plugins)
+			else if (context._updateConfig.schema.body.frameworkUpdate.strategy == "manaul")
 			{
-				<Tag Color="geekblue">@plugin.name@("@")@plugin.version</Tag>
+				<Tag Color="orange">手动</Tag>
 			}
-		</PropertyColumn>
+			else if (context._updateConfig.schema.body.frameworkUpdate.strategy == "auto")
+			{
+				<Tag Color="purple">自动</Tag>
+			}
+		</Column>
+		<Column Title="资源聚合策略" TData="string">
+			@if (context._updateConfig.schema.body.assetSyndication.strategy == "skip")
+			{
+				<Tag Color="green">跳过</Tag>
+			}
+			else if (context._updateConfig.schema.body.assetSyndication.strategy == "manaul")
+			{
+				<Tag Color="orange">手动</Tag>
+			}
+			else if (context._updateConfig.schema.body.assetSyndication.strategy == "auto")
+			{
+				<Tag Color="purple">自动</Tag>
+			}
+		</Column>
+		<Column Title="模块" TData="string">
+			<Tag Color="cyan">@context._dependencyConfig.schema.body.references.Length</Tag>
+		</Column>
+		<Column Title="插件" TData="string">
+			<Tag Color="cyan">@context._dependencyConfig.schema.body.plugins.Length</Tag>
+		</Column>
 		<Column Title="应用程序" TData="string">
 			@if (!string.IsNullOrEmpty(context.Entity.Application))
 			{
@@ -81,6 +98,9 @@
 		</Column>
 		<ActionColumn Title="操作" Fixed="right" Width="150">
 			<Space Size=@("middle")>
+				<SpaceItem>
+					<Button Size="small" OnClick="()=>onBrowseClick(context.Entity?.Uuid)">浏览</Button>
+				</SpaceItem>
 				@if (permissionS_.ContainsKey(Permissions.UnityUpdate))
 				{
 					<SpaceItem>
@@ -90,13 +110,15 @@
 				<SpaceItem>
 					<Button Size="small" Type="@ButtonType.Primary" OnClick="()=>onRunClick(context.Entity?.Uuid)">运行</Button>
 				</SpaceItem>
+				<!--
 				<SpaceItem>
-					<Button Size="small" OnClick="()=>onDownloadClick(context.Entity?.Uuid)">下载</Button>
+					<Button Size="small" OnClick="()=>onDownloadClick(context.Entity?.Uuid)">地址</Button>
 				</SpaceItem>
+				-->	
 				@if (permissionS_.ContainsKey(Permissions.UnityDelete))
 				{
 					<SpaceItem>
-						<Popconfirm Title="确定要删除这个包吗?"
+						<Popconfirm Title="确定要删除这个虚拟环境吗?"
 								OnConfirm="@(()=>onConfirmDelete(context.Entity?.Uuid))"
 								OnCancel="onCancelDelete"
 								OkText="确定"
@@ -292,6 +314,124 @@
 	</Form>
 </Modal>
 
+<Modal Title="浏览"
+	   Visible="@visibleBrowseModal"
+	   OnCancel="@onBrowseModalCancel"
+	   Footer="null"
+	   Width="1024">
+	<Form Model="@updateModel"
+		  LabelColSpan="8"
+		  WrapperColSpan="16"
+		  @ref="@updateForm">
+		<FormItem Label="名称" Required>
+			<Input @bind-Value="@context.Entity.Name" ReadOnly="true" />
+		</FormItem>
+		<FormItem Label="备注">
+			<Input @bind-Value="@context.Entity.Display" ReadOnly="true" />
+		</FormItem>
+		<FormItem Label="应用程序">
+			<Input @bind-Value="@context.Entity.Application" ReadOnly="true" />
+		</FormItem>
+		<FormItem Label="元数据地址">
+			<Text>@getMetaAddress(context.Entity.Uuid)</Text>
+		</FormItem>
+		<Tabs>
+			<TabPane Tab="图像设置" Key="1">
+				<FormItem Label="画面质量">
+					<Input @bind-Value="@qualityS[@context.Entity.GraphicsQuality].Label" ReadOnly="true" />
+				</FormItem>
+				<FormItem Label="锁定帧数">
+					<AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsFps" Min="30" Max="120" Step="30" ReadOnly="true" />
+				</FormItem>
+				<FormItem Label="运行分辨率">
+					<Input @bind-Value="@context.Entity.GraphicsPixelResolution" ReadOnly="true" />
+				</FormItem>
+				<FormItem Label="UI设计分辨率宽度">
+					<AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionWidth" Min="0" ReadOnly="true" />
+				</FormItem>
+				<FormItem Label="UI设计分辨率高度">
+					<AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionHeight" Min="0" ReadOnly="true" />
+				</FormItem>
+				<FormItem Label="UI设计分辨率适配权重">
+					<AntDesign.InputNumber @bind-Value="@context.Entity.GraphicsReferenceResolutionMatch" Max="1.0f" Min="0.0f" Step="0.1f" ReadOnly="true" />
+				</FormItem>
+			</TabPane>
+			<TabPane Tab="皮肤设置" Key="2">
+				<FormItem Label="过场界面背景图">
+					<Input @bind-Value="@context.Entity.SkinSplashBackground" AllowClear="true" ReadOnly="true" />
+				</FormItem>
+				<FormItem Label="过场界面标语图">
+					<Input @bind-Value="@context.Entity.SkinSplashSlogan" AllowClear="true" ReadOnly="true" />
+				</FormItem>
+			</TabPane>
+			<TabPane Tab="依赖设置" Key="3">
+				<FormItem Label="环境">
+					<Input @bind-Value="@environmentLabel" ReadOnly="true" />
+				</FormItem>
+				<FormItem Label="更新策略">
+					<Input @bind-Value="@frameworkUpdateStrategyLabel" ReadOnly="true" />
+				</FormItem>
+				<FormItem Label="仓库地址">
+					<Input @bind-Value="@context._updateConfig.schema.body.frameworkUpdate.repository" ReadOnly="true" />
+				</FormItem>
+				<FormItem Label="模块">
+					<TextArea @bind-Value="@context._dependencyReferencesInput" MinRows="1" DefaultToEmptyString=true AutoSize=true ReadOnly="true" />
+				</FormItem>
+				<FormItem Label="插件">
+					<TextArea @bind-Value="@context._dependencyPluginsInput" MinRows="1" ReadOnly="true" />
+				</FormItem>
+			</TabPane>
+			<TabPane Tab="引导设置" Key="4">
+				<FormItem Label="步骤">
+					<TextArea @bind-Value="@context._bootloaderStepsInput" MinRows="1" ReadOnly="true" />
+				</FormItem>
+			</TabPane>
+			<TabPane Tab="资源配置" Key="5">
+				<FormItem Label="更新策略">
+					<Input @bind-Value="@assetSyndicationStrategyLabel" ReadOnly="true" />
+				</FormItem>
+				<FormItem Label="存储地址">
+					<Input @bind-Value="@context._updateConfig.schema.body.assetSyndication.storage" ReadOnly="true" />
+				</FormItem>
+				<Tabs>
+					@foreach (var pair in context._rawModuleCatalogS)
+					{
+						<TabPane Key="@pair.Key" Tab="@pair.Key">
+							<TextArea MinRows="5" @bind-Value="@pair.Value" DefaultToEmptyString AutoSize ReadOnly="true"></TextArea>
+						</TabPane>
+					}
+				</Tabs>
+			</TabPane>
+			<TabPane Tab="模块配置" Key="6">
+				<Tabs>
+					@foreach (var pair in context._rawModuleConfigS)
+					{
+						<TabPane Key="@pair.Key" Tab="@pair.Key">
+							<TextArea MinRows="5" @bind-Value="@pair.Value" DefaultToEmptyString AutoSize ReadOnly="true"></TextArea>
+						</TabPane>
+					}
+				</Tabs>
+			</TabPane>
+			<TabPane Tab="主题配置" Key="7">
+				<Tabs ActiveKeyChanged="@onThemeActiveKeyChanged">
+					@foreach (var pair in context.Entity.ModuleThemes)
+					{
+						<TabPane Key="@pair.Key" Tab="@pair.Key">
+							<Table DataSource="@pair.Value.EntityS" Context="theme_context">
+								<PropertyColumn Property="c=>c.Url" Title="文件预览">
+									<Image Width="96px" Src="@theme_context.Url" />
+								</PropertyColumn>
+								<PropertyColumn Property="c=>c.Path" Title="文件路径"></PropertyColumn>
+								<PropertyColumn Property="c=>c.Size" Title="文件大小"></PropertyColumn>
+							</Table>
+						</TabPane>
+					}
+				</Tabs>
+			</TabPane>
+		</Tabs>
+	</Form>
+</Modal>
+
 <style>
 	.card-search-col {
 		margin-right: 64px;
@@ -337,5 +477,62 @@
 	};
 
 	ListGridType listGrid = new ListGridType { Gutter = 16, Column = 4 };
+
+	string environmentLabel
+	{
+		get
+		{
+			foreach (var e in environmentS)
+			{
+				if (e.Value == updateModel._updateConfig.schema.body.frameworkUpdate.environment)
+					return e.Label;
+			}
+			return "";
+		}
+		set
+		{
+
+		}
+	}
+
+	string frameworkUpdateStrategyLabel
+	{
+		get
+		{
+			foreach (var e in updateStrategyS)
+			{
+				if (e.Value == updateModel._updateConfig.schema.body.frameworkUpdate.strategy)
+					return e.Label;
+			}
+			return "";
+		}
+		set
+		{
+
+		}
+	}
+
+	string assetSyndicationStrategyLabel
+	{
+		get
+		{
+			foreach (var e in updateStrategyS)
+			{
+				if (e.Value == updateModel._updateConfig.schema.body.assetSyndication.strategy)
+					return e.Label;
+			}
+			return "";
+		}
+		set
+		{
+
+		}
+	}
+
+	private string getMetaAddress(string _uuid)
+	{
+		string uri = string.Format("http://minio.xtech.cloud/fmp.vendor/unity/{0}.json", _uuid);
+		return uri;
+	}
 }
 

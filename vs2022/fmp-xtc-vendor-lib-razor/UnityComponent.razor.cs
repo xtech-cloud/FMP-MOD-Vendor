@@ -5,12 +5,9 @@ using XTC.FMP.MOD.Vendor.LIB.Bridge;
 using XTC.FMP.MOD.Vendor.LIB.MVCS;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Components.Forms;
-using System.ComponentModel;
 using AntDesign;
-using AntDesign.TableModels;
 using Microsoft.JSInterop;
 using System.Text;
-using System.Net;
 using Newtonsoft.Json;
 
 namespace XTC.FMP.MOD.Vendor.LIB.Razor
@@ -576,6 +573,108 @@ namespace XTC.FMP.MOD.Vendor.LIB.Razor
         {
             tablePageIndex = args.Page;
             await listAll();
+        }
+        #endregion
+
+        #region Browse
+        private bool visibleBrowseModal = false;
+        private void onBrowseClick(string? _uuid)
+        {
+            if (string.IsNullOrEmpty(_uuid))
+                return;
+
+            var unity = tableModel.Find((x) =>
+            {
+                if (string.IsNullOrEmpty(x.Entity?.Uuid))
+                    return false;
+                return x.Entity.Uuid.Equals(_uuid);
+            });
+            if (null == unity)
+                return;
+
+            visibleBrowseModal = true;
+            updateModel.Entity = Utilities.DeepCloneProtoUnityEntity(unity.Entity);
+            // 解析模块
+            try
+            {
+                updateModel._dependencyConfig = Utilities.FromBase64XML<UnityModel.DependencyConfig>(updateModel.Entity.DependencyConfig) ?? new UnityModel.DependencyConfig();
+            }
+            catch (System.Exception ex)
+            {
+                logger_?.Exception(ex);
+            }
+            StringBuilder sbReference = new StringBuilder();
+            foreach (var reference in updateModel._dependencyConfig.schema.body.references)
+            {
+                string? referenceStr = Utilities.DependencyReferenceToString(reference) ?? null;
+                if (string.IsNullOrEmpty(referenceStr))
+                    continue;
+                sbReference.AppendLine(referenceStr);
+            }
+            updateModel._dependencyReferencesInput = sbReference.ToString();
+            StringBuilder sbPlugin = new StringBuilder();
+            foreach (var plugin in updateModel._dependencyConfig.schema.body.plugins)
+            {
+                string? pluginStr = Utilities.DependencyPluginToString(plugin) ?? null;
+                if (string.IsNullOrEmpty(pluginStr))
+                    continue;
+                sbPlugin.AppendLine(pluginStr);
+            }
+            updateModel._dependencyPluginsInput = sbPlugin.ToString();
+            // 解析加载
+            try
+            {
+                updateModel._bootloaderConfig = Utilities.FromBase64XML<UnityModel.BootloaderConfig>(updateModel.Entity.BootloaderConfig) ?? new UnityModel.BootloaderConfig();
+            }
+            catch (System.Exception ex)
+            {
+                logger_?.Exception(ex);
+            }
+            // 解析更新
+            try
+            {
+                updateModel._updateConfig = Utilities.FromBase64XML<UnityModel.UpdateConfig>(updateModel.Entity.UpdateConfig) ?? new UnityModel.UpdateConfig();
+            }
+            catch (System.Exception ex)
+            {
+                logger_?.Exception(ex);
+            }
+            StringBuilder sbBootSteps = new StringBuilder();
+            foreach (var step in updateModel._bootloaderConfig.schema.steps)
+            {
+                string? stepStr = Utilities.BootloaderStepToString(step) ?? null;
+                if (string.IsNullOrEmpty(stepStr))
+                    continue;
+                sbBootSteps.AppendLine(stepStr);
+            }
+            // 解析模块编目
+            updateModel._rawModuleCatalogS.Clear();
+            foreach (var pair in updateModel.Entity.ModuleCatalogs)
+            {
+                var catalog = new UpdateModel.StringPair
+                {
+                    Key = pair.Key,
+                    Value = Encoding.UTF8.GetString(Convert.FromBase64String(pair.Value)),
+                };
+                updateModel._rawModuleCatalogS.Add(catalog);
+            }
+            // 解析模块配置
+            updateModel._rawModuleConfigS.Clear();
+            foreach (var pair in updateModel.Entity.ModuleConfigs)
+            {
+                var config = new UpdateModel.StringPair
+                {
+                    Key = pair.Key,
+                    Value = Encoding.UTF8.GetString(Convert.FromBase64String(pair.Value)),
+                };
+                updateModel._rawModuleConfigS.Add(config);
+            }
+            updateModel._bootloaderStepsInput = sbBootSteps.ToString();
+        }
+
+        private void onBrowseModalCancel()
+        {
+            visibleBrowseModal = false;
         }
         #endregion
 
