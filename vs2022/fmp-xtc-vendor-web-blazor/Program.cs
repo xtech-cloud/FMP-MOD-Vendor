@@ -20,7 +20,7 @@ public partial class Program
 {
     public static async Task Main(string[] args)
     {
-        var permissioS = new Dictionary<string,string>();
+        var permissioS = new Dictionary<string, string>();
 
         permissioS[Permissions.BlazorCreate] = "";
         permissioS[Permissions.BlazorUpdate] = "";
@@ -40,7 +40,9 @@ public partial class Program
 
         var channel = GrpcChannel.ForAddress("https://localhost:19000/", new GrpcChannelOptions
         {
-            HttpHandler = new GrpcWebHandler(new HttpClientHandler())
+            HttpHandler = new GrpcWebHandler(new HttpClientHandler()),
+            MaxReceiveMessageSize = int.MaxValue,
+            MaxSendMessageSize = int.MaxValue,
         });
 
         Logger logger = new ConsoleLogger();
